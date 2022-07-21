@@ -1,0 +1,293 @@
+#!/usr/bin/env python3
+# coding: utf-8
+import os
+import json
+import re
+import tqdm
+import stat
+import sunday.core.paths as paths
+from pydash.objects import pick as _pick
+from sunday.core import cmdexec, Logger, MultiThread, getParser
+from urllib.parse import urlparse, urldefrag
+
+CMDINFO = {
+    "version": "0.1.0",
+    "description": u"安装sunday模块",
+    "epilog": u"""
+使用案例:
+    %(prog)s https://website.com/sunday/name1.git https://website.com/sunday/name2.git
+    %(prog)s --giturl https://website.com sunday/name1.git https://website.com/sunday/name2.git sunday/name3.git https://website.com/sunday/name4.git
+    %(prog)s /path/to/package
+    """,
+}
+
+logger = Logger('INSTALL').getLogger()
+homePluginsCwd = paths.homePluginsCwd
+
+template = '''#!/usr/bin/env python3
+# coding: utf-8
+from sunday.tools.%s import runcmd
+
+runcmd()
+'''
+
+class InstallModule():
+    """ 安装模块
+    Arguments:
+      module: 模块路径
+    Attributes:
+      install: 安装程序入口
+    """
+    def __init__(self, module):
+        if not os.path.exists(homePluginsCwd): os.makedirs(homePluginsCwd)
+        self.module = module
+        self.settingFile = os.path.join(module, 'package.json')
+        self.requirementFile = os.path.join(module, 'requirements.txt')
+        # 配置关键字
+        self.config = self.getModuleConfig(self.settingFile, ['name', 'type', 'depend', 'bin'])
+        self.events = {}
+    
+    def getConfig(self, key):
+        return self.config.get(key)
+
+    def getModuleConfig(self, modulePath, keywords):
+        """传入配置文件路径返回配置对象"""
+        if not os.path.exists(modulePath): return {}
+        with open(modulePath) as f: return _pick(json.load(f), keywords)
+    
+    def installByCommon(self):
+        if os.path.exists(self.requirementFile):
+            cmdexec('pip install -r {}'.format(self.requirementFile))
+        moduleType = self.getConfig('type')
+        moduleName = self.getConfig('name')
+        sundayOnceCmd = {
+            'tools': paths.sundayToolsCwd,
+            'login': paths.sundayLoginCwd
+        }[moduleType]
+        linkTarget = os.path.join(sundayOnceCmd, moduleName)
+        if not os.path.exists(linkTarget): os.symlink(self.module, linkTarget)
+        self.installSuccess('%s模块%s安装成功!' % (moduleType, moduleName))
+
+    def installByLogin(self):
+        """安装登录模块"""
+        self.installByCommon()
+
+    def installByTools(self):
+        """安装工具模块"""
+        self.installByCommon()
+        binArr = list(filter(self.checkBin, self.getConfig('bin')))
+        moduleName = self.getConfig('name')
+        if len(binArr) == 0:
+            logger.debug('%s 无新增命令' % moduleName)
+            return
+        for name in binArr:
+            binPath = os.path.join(paths.binCwd, name)
+            with open(binPath, 'w') as f:
+                f.write(template % ('.'.join([moduleName, name])))
+            os.chmod(binPath, stat.S_IRWXU)
+        logger.info('%s 新增命令 %s' % (moduleName, ', '.join(binArr)))
+
+    def installByCommand(self):
+        """安装命令工具"""
+        binArr = list(filter(self.checkBin, self.getConfig('bin')))
+        moduleType = self.getConfig('type')
+        moduleName = self.getConfig('name')
+        for name in binArr:
+            binPath = os.path.join(paths.binCwd, name)
+            oriPath = os.path.join(self.module, name)
+            if not os.path.exists(binPath): os.symlink(oriPath, binPath)
+            os.chmod(oriPath, stat.S_IRWXU)
+        if len(binArr): logger.info('%s 新增命令 %s' % (moduleName, ', '.join(binArr)))
+        self.installSuccess('%s模块%s安装成功!' % (moduleType, moduleName))
+
+    def checkBin(self, name):
+        moduleName = self.getConfig('name')
+        binOriFileName = os.path.join(self.module, name)
+        binTarFilePath = os.path.join(paths.binCwd, name)
+        binOriFilePath = list(filter(os.path.exists, [binOriFileName + t for t in ['', '.py', '.sh']]))
+        return len(binOriFilePath) and not os.path.exists(binTarFilePath)
+
+    def installError(self, tip):
+        self.exec_event('error')
+        logger.error(tip)
+
+    def installSuccess(self, tip):
+        self.exec_event('success')
+        logger.info(tip)
+
+    def add_event(self, name, func):
+        # 注册事件
+        self.events[name] = func
+    
+    def exec_event(self, name, *args, **kwargs):
+        # 执行事件
+        func = self.events.get(name)
+        if func: func(*args, **kwargs)
+
+    def install(self):
+        # 模块类型, login(登录模块), tools(工具模块)
+        moduleType = self.getConfig('type')
+        moduleName = self.getConfig('name')
+        if moduleType not in ['login', 'tools', 'command']:
+            self.installError('target is not module, please check it! module in {}'.format(moduleType or 'None', self.module))
+            return
+        logger.info('install %s module: %s' % (moduleType, moduleName))
+        if moduleType == 'login': self.installByLogin()
+        elif moduleType == 'tools': self.installByTools()
+        elif moduleType == 'command': self.installByCommand()
+
+
+class PullModule():
+    """ 拉取模块代码
+    Arguments:
+    Attributes:
+    """
+    def __init__(self, modules: str, pullType: str, isNotDepend: bool):
+        if not os.path.exists(homePluginsCwd): os.makedirs(homePluginsCwd)
+        self.modules = modules
+        self.errorList = []
+        self.successList = []
+        self.errorInstallList = []
+        self.successInstallList = []
+        self.modulesTarget = []
+        self.pbar = None
+        self.pullType = pullType or 'remote'
+        self.isNotDepend = isNotDepend
+
+    def getFileInfo(self, url):
+        """解析git链接, 返回文件名、分支及仓库地址"""
+        urlObj = urlparse(url)
+        defrag, branch = urldefrag(url)
+        branch = branch or 'master'
+        names = list(filter(bool, urlObj.path.split('/')))
+        fromname = '+'.join(names[0:-1] + [re.sub(r'.git$', '', names[-1])])
+        filename = '{}@{}'.format(branch, fromname)
+        fileInfo = (os.path.join(homePluginsCwd, filename), branch, defrag)
+        return fileInfo
+    
+    def successInstallAfter(self, module: str, targetPath: str):
+        """成功安装module后执行"""
+        self.successList.append({ 'module': module })
+        self.modulesTarget.append(targetPath)
+        if self.isNotDepend: return
+        # 添加依赖到安装列表
+        depend = InstallModule(targetPath).getConfig('depend')
+        if type(depend) == list and len(depend) > 0:
+            self.modules += [d for d in depend if d not in self.modules]
+
+    def copyModule(self, module):
+        """安装本地模块"""
+        execcode, stdout, stderr = cmdexec('rsync -r --exclude .git %s %s' % (module, homePluginsCwd))
+        fileName = os.path.basename(module)
+        targetPath = os.path.join(homePluginsCwd, fileName)
+        if os.path.exists(targetPath) and execcode == 0:
+            self.successInstallAfter(module, targetPath)
+        else:
+            logger.error('{} fail {}'.format(self.pullType, stderr))
+            self.errorList.append({
+                'module': module,
+                'errorCode': execcode,
+                'errorText': stderr
+            })
+
+    def pullModule(self, module):
+        """下载/更新模块"""
+        targetPath, branch, defrag = self.getFileInfo(module)
+        gitdir = 'git --git-dir={gitpath}/.git --work-tree={gitpath}'.format(gitpath=targetPath)
+        if os.path.exists(targetPath):
+            command = '{gitdir} fetch origin {branch}; {gitdir} reset --hard origin/{branch}'.format(gitdir=gitdir, branch=branch)
+            execType = 'update'
+        else:
+            command = 'git clone -b %s %s %s' % (branch, defrag, targetPath)
+            execType = 'install'
+        execcode, stdout, stderr = cmdexec(command)
+        if os.path.exists(targetPath) and execcode == 0:
+            logger.info(cmdexec('%s status' % gitdir)[1])
+            self.successInstallAfter(module, targetPath)
+        else:
+            logger.error('{} {} {} fail {}'.format(self.pullType, branch, execType, stderr))
+            self.errorList.append({
+                'module': module,
+                'errorCode': execcode,
+                'errorText': stderr
+            })
+    
+    def successHandle(self):
+        self.pbar and self.pbar.update(1)
+        self.successInstallList.append({})
+
+    def errorHandle(self):
+        self.pbar and self.pbar.update(1)
+        self.errorInstallList.append({})
+    
+    def install(self, moduleTarget):
+        moduler = InstallModule(moduleTarget)
+        moduler.add_event('error', self.errorHandle)
+        moduler.add_event('success', self.successHandle)
+        moduler.install()
+    
+    def grenInitFile(self, pathname):
+        # 修改登录模块的__file__文件导出全部的登录模块
+        filename = os.path.join(pathname, '__init__.py')
+        filelist = list(filter(lambda n: n not in ['__init__.py', '__init__.pyc', '__pycache__'], os.listdir(pathname)))
+        with open(filename, 'w') as f:
+            f.write('\n'.join(['from . import %s' % i for i in filelist ]))
+        logger.debug('文件内容:\n'.join([filename, cmdexec('cat %s' % filename)[1]]))
+
+    def runcmd(self):
+        firstIdx = 0
+        lastIdx = len(self.modules)
+        times = 1
+        while (firstIdx != lastIdx):
+            logger.info('第%d巡拉取%d个' % (times, lastIdx - firstIdx))
+            MultiThread(self.modules[firstIdx:lastIdx], lambda item, _: [self.pullModule if self.pullType == 'remote' else self.copyModule, (item,)]).start()
+            firstIdx = lastIdx
+            lastIdx = len(self.modules)
+            times += 1
+        modulesTargetLen = len(self.modulesTarget)
+        logger.info('模块拉取成功%d个, 拉取失败%d个, 总共拉取模块%d个, 等待执行安装' % (len(self.successList), len(self.errorList), modulesTargetLen))
+        if modulesTargetLen > 0:
+            self.pbar = tqdm.tqdm(total=len(self.modulesTarget))
+            MultiThread(self.modulesTarget, lambda item, _: [self.install, (item,)]).start()
+            self.pbar.close()
+            self.grenInitFile(paths.sundayLoginCwd)
+            self.grenInitFile(paths.sundayToolsCwd)
+            logger.info('执行模块安装%d个, 成功%d个, 失败%d个' % (modulesTargetLen, len(self.successInstallList), len(self.errorInstallList)))
+
+class Main():
+    def __init__(self):
+        pass
+
+    def valid_url(self, url: str, console=True):
+        isValid = urlparse(url).scheme in ['ssh', 'http', 'https']
+        if not isValid and console: print('非有效远程地址 %s' % url)
+        return isValid
+    
+    def valid_path(self, pth: str, console=True):
+        modulePath = os.path.abspath(pth)
+        isValid = os.path.exists(os.path.join(modulePath, 'package.json'))
+        if not isValid and console: print('非有效本地目录 %s' % pth)
+        return isValid
+
+    def run(self):
+        modules = [['/'.join([self.git_url_base, m]), m][self.valid_url(m, False)]
+            for m in self.modules] if self.git_url_base else self.modules
+        valid_remote_modules = list(filter(self.valid_url, modules))
+        if len(valid_remote_modules) > 0: PullModule(valid_remote_modules, 'remote', self.isNotDepend).runcmd()
+        valid_local_modules = list(filter(self.valid_path, modules))
+        valid_local_modules = list(map(os.path.abspath, valid_local_modules))
+        if len(valid_local_modules) > 0: PullModule(valid_local_modules, 'local', self.isNotDepend).runcmd()
+
+def runcmd():
+    parser = getParser(**CMDINFO)
+    parser.add_argument('modules', nargs='+', metavar='MODULE_URL(S)', type=str,
+        help=u'安装模块的本地模块路径或者git地址, 支持传多个, 可混搭git仓库, 分支请用#字符拼接')
+    parser.add_argument("--giturl", dest="git_url_base", metavar="GIT_URL_BASE",
+        help=u"git元地址, 当存在该地址时则最终地址为giturl+module")
+    parser.add_argument("-N", "--notdepend", dest="isNotDepend", action="store_true", default=False,
+        help=u"是否跳过依赖安装，如果安装本地模块，且依赖的模块也是本地安装则可设置为不安装依赖")
+    handle = parser.parse_args(namespace=Main())
+    handle.run()
+
+if __name__ == "__main__":
+    runcmd()

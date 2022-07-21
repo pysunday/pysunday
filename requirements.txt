@@ -1,0 +1,11 @@
+requests
+beautifulsoup4
+python-dotenv
+requests
+configparser
+pydash
+colorlog
+prettytable
+pypac
+tqdm
+lxml

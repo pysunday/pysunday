@@ -1,0 +1,13 @@
+*.swp
+*.pyc
+*.env
+*.cookies
+*.store
+*.DS_Store
+__pycache__
+.pytest_cache
+temp/
+plugins/
+pysunday.egg-info/
+dist/
+build/
