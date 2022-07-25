@@ -65,7 +65,9 @@ class InstallModule():
             'login': paths.sundayLoginCwd
         }[moduleType]
         linkTarget = os.path.join(sundayOnceCmd, moduleName)
-        if not os.path.exists(linkTarget): os.symlink(self.module, linkTarget)
+        # 存在软链则先删除
+        if os.path.exists(linkTarget): os.remove(linkTarget)
+        os.symlink(self.module, linkTarget)
         self.installSuccess('%s模块%s安装成功!' % (moduleType, moduleName))
 
     def installByLogin(self):
