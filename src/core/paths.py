@@ -1,7 +1,7 @@
 # coding: utf-8
 import sunday
 from os import path, makedirs
-from .getEnv import getEnv
+from sunday.core.getEnv import getEnv
 from dotenv import load_dotenv
 
 __all__ = ['rootCwd', 'logCwd', 'binCwd', 'envCwd', 'sundayLoginCwd', 'sundayToolsCwd']

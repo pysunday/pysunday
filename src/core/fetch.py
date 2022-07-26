@@ -1,13 +1,16 @@
 # coding: utf-8
 import requests
+import sunday.core.paths as paths
 from http.cookiejar import LWPCookieJar
-from .getConfig import getConfig
-from .checkWifi import checkWifi
-from .getEnv import getEnv
-from .logger import Logger
+from sunday.core.getEnv import getEnv
+from sunday.core.logger import Logger
+from sunday.core.common import exit
+from sunday.core.checkPacNet import checkPacNet
+from sunday.core.getConfig import getConfig
+from sunday.core.enver import enver
+from sunday.core.auth import Auth, getCurrentUser
 from pypac import PACSession
 from requests.auth import HTTPProxyAuth
-import os, sys
 
 # 关闭由verify=False引起的提示
 requests.packages.urllib3.disable_warnings()
@@ -29,8 +32,10 @@ headers_post = {
 
 logger = Logger('Fetch').getLogger()
 class Fetch():
-    def __init__(self, pacWifiName = None):
-        self.pacWifiName = pacWifiName
+    def __init__(self, pacWifi = None, pacUrl = None, pacWifiName = None):
+        # pacWifiName 兼容老写法
+        self.pacWifi = pacWifi or pacWifiName
+        self.pacUrl = pacUrl
         self._hasProxy = False
         self._hasPacProxy = False
         self.session = self.get_session()
@@ -76,11 +81,13 @@ class Fetch():
 
     def openPacProxy(self, session):
         '''检测为内网环境则增加代理认证'''
-        UM_USER = getEnv('UM_USER')
-        UM_PASS = getEnv('UM_PASS')
-        if UM_USER and UM_PASS and checkWifi(self.pacWifiName):
-            logger.warning('pac认证网络%s' % self.pacWifiName)
-            session.proxy_auth = HTTPProxyAuth(UM_USER, UM_PASS)
+        if checkPacNet(self.pacWifi, self.pacUrl):
+            auth = Auth(paths.envCwd, '[PAC PROXY]')
+            getenv = enver(paths.envCwd)[0]
+            username = auth.addParams('pac_user', 'PAC代理账号', value=getenv('pac_user'), defaultValue=getCurrentUser())
+            password = auth.addParams('pac_pass', 'PAC代理密码', value=getenv('pac_pass'), isPass=True)
+            logger.warning('pac认证网络, 网络交互使用代理中')
+            session.proxy_auth = HTTPProxyAuth(username, password)
             self._hasPacProxy = True
             return True
         return False
@@ -92,8 +99,7 @@ class Fetch():
             return res
         except Exception as e:
             if times >= 3:
-                logger.error('第%d次尝试失败, 请检查网络后重试!' % times)
-                sys.exit(1)
+                exit('第%d次尝试失败, 请检查网络后重试!' % times)
             times += 1
             logger.warning('接口请求失败, 进行第%d次尝试: %s' % (times, e))
             return self.requestByType(type, times, *args, **kwargs)
@@ -110,4 +116,3 @@ class Fetch():
         if 'get_dict' in cookies:
             return cookies.get_dict()
         return requests.utils.dict_from_cookiejar(cookies)
-

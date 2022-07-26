@@ -2,7 +2,7 @@
 import os
 import sys
 from dotenv import load_dotenv, set_key, unset_key
-from .logger import Logger
+from sunday.core.logger import Logger
 
 logger = Logger('enver').getLogger()
 

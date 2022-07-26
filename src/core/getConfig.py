@@ -1,6 +1,6 @@
 # coding: utf-8
 import os
-from . import paths
+import sunday.core.paths as paths
 from configparser import ConfigParser
 
 __all__ = ['getConfig']

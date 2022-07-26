@@ -1,7 +1,7 @@
 # coding: utf-8
 import subprocess
 from threading import Timer
-from .logger import Logger
+from sunday.core.logger import Logger
 
 logger = Logger('cmdexec').getLogger()
 

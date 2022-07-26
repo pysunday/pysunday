@@ -1,8 +1,8 @@
 # coding: utf-8
-# 该方法已经移入core， 之后不再维护
 import os
 from getpass import getpass
-from sunday.core import Logger, getEnv
+from sunday.core.logger import Logger
+from sunday.core.getEnv import getEnv
 
 logger = Logger('AUTH').getLogger()
 

@@ -1,7 +1,7 @@
 # coding: utf-8
 
 # 工具函数
-from .checkWifi import *
+from .checkPacNet import *
 from .getConfig import *
 from .getEnv import *
 from .enver import *
@@ -11,6 +11,7 @@ from .common import *
 from .cachevar import *
 from .cmdexec import *
 from .MultiThread import *
+from .auth import *
 from . import globalvar
 
 # 日志

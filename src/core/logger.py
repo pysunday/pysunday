@@ -6,16 +6,16 @@ import datetime
 from os import path
 from sunday.core.globalvar import getvar, setvar
 from sunday.core.getConfig import getConfig
-from sunday.core.paths import logCwd
+import sunday.core.paths as paths
 
 if not getvar('loggerId'):
     loggerId = datetime.datetime.today().isoformat()
     setvar('loggerId', loggerId)
     @atexit.register
     def exitPrintLogfile():
-        print('日志文件: %s' % path.join(logCwd, loggerId))
+        print('\n    日志文件: %s' % path.join(paths.logCwd, loggerId))
 
-logfile = path.join(logCwd, getvar('loggerId'))
+logfile = path.join(paths.logCwd, getvar('loggerId'))
 
 logging.basicConfig(filename=logfile, level=logging.DEBUG, force=True,
         format='[%(asctime)s.%(msecs)-3d] %(levelname)s <%(name)s>: %(message)s')

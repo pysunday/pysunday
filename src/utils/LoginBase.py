@@ -1,19 +1,22 @@
 # coding: utf-8
 import requests
 from http.cookiejar import LWPCookieJar, CookieJar
-from sunday.core import getConfig, Logger, Fetch, globalvar
+from sunday.core.getConfig import getConfig
+from sunday.core.logger import Logger
+from sunday.core.fetch import Fetch
+import sunday.core.globalvar as globalvar
 from sunday.utils.tools import mergeObj
 import os
 
 
 class LoginBase():
-    def __init__(self, file, logger=Logger('LoginBase').getLogger()):
+    def __init__(self, file, logger=Logger('LoginBase').getLogger(), pacWifi=None, pacUrl=None):
         pwd = os.path.dirname(os.path.abspath(file))
         self.logger = logger
         cfg = getConfig('LOGIN')
         self.cookiePwd = os.path.join(pwd, cfg('cookieFile'))
         self.envPwd = os.path.join(pwd, cfg('envFile'))
-        self.fetch = Fetch(pacWifiName = ['PA_WLAN'])
+        self.fetch = Fetch(pacWifi=pacWifi, pacUrl=pacUrl)
 
     def getCookiePwd(self):
         return self.cookiePwd

@@ -1,5 +1,5 @@
 # coding: utf-8
-from . import globalvar
+import sunday.core.globalvar as globalvar
 
 def cache_name(name):
     '''根据名称缓存第一次执行结果'''
