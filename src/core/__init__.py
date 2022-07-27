@@ -13,6 +13,7 @@ from .cmdexec import *
 from .MultiThread import *
 from .auth import *
 from . import globalvar
+from .aesCbc import *
 
 # 日志
 from .logger import *

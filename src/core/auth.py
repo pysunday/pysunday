@@ -3,11 +3,17 @@ import os
 from getpass import getpass
 from sunday.core.logger import Logger
 from sunday.core.getEnv import getEnv
+from sunday.core.getConfig import getConfig
+from sunday.core.aesCbc import aesCbcDecrypt, aesCbcEncrypt
+
+__all__ = ['getCurrentUser', 'Auth']
 
 logger = Logger('AUTH').getLogger()
 
 def getCurrentUser():
     return getEnv('USER')
+
+cryptoKey = getConfig('CRYPTO')('key')
 
 class Auth():
     """ 用于用户账户认证相关操作
@@ -55,23 +61,30 @@ class Auth():
             value存在则返回value否则返回用户交互结果
         """
         self.tip[key] = self.tipMap(tip or key)
-        self.val[key] = value or self.ask(key, defaultValue, isMust, isSave, isPass)
+        tarVal = value
+        if not value:
+            tarVal = self.ask(key, defaultValue, isMust, isSave, isPass)
+        elif isPass:
+            tarVal = aesCbcDecrypt(value, cryptoKey)
+        self.val[key] = tarVal
         return self.val[key]
 
     def ask(self, key, defaultValue, isMust, isSave, isPass):
         tip = '%s%s: ' % (self.tip[key], '(%s)' % defaultValue if defaultValue else '')
         value = getpass(tip) if isPass else input(tip)
-        if value is '':
+        if value == '':
             if defaultValue:
                 value = defaultValue
             elif isMust:
                 print('必填项不能为空!')
                 return self.ask(key, defaultValue, isMust, isSave)
         if isSave:
-            cmd = 'echo %s=%s >> %s' % (key, value, self.envPath)
+            # isPass则存储密文, 否则存储明文
+            tarVal = aesCbcEncrypt(value, cryptoKey).decode() if isPass else value
+            cmd = 'echo %s=%s >> %s' % (key, tarVal, self.envPath)
             os.system(cmd)
         return value
-    
+
     def getParams(self):
         return self.val
 
@@ -79,3 +92,4 @@ class Auth():
 if __name__ == '__main__':
     auth = Auth()
     auth.addParams('user', '哈哈')
+

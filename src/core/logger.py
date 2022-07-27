@@ -11,9 +11,10 @@ import sunday.core.paths as paths
 if not getvar('loggerId'):
     loggerId = datetime.datetime.today().isoformat()
     setvar('loggerId', loggerId)
-    @atexit.register
-    def exitPrintLogfile():
-        print('\n    日志文件: %s' % path.join(paths.logCwd, loggerId))
+    if getConfig('LOGGING')('print_file'):
+        @atexit.register
+        def exitPrintLogfile():
+            print('\n    LOG FILE AT: %s' % path.join(paths.logCwd, loggerId))
 
 logfile = path.join(paths.logCwd, getvar('loggerId'))
 

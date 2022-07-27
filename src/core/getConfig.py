@@ -7,8 +7,11 @@ __all__ = ['getConfig']
 
 defaultConfig = {
     'LOGGING.level': 'ERROR',
+    'LOGGING.print_file': False,
     'LOGIN.cookieFile': '.cookies',
-    'LOGIN.envFile': '.env'
+    'LOGIN.envFile': '.env',
+    # 密钥
+    'CRYPTO.key': 'HOWDUUDU'
 }
 
 def getConfig(name, file='config.ini', default={}):
@@ -18,6 +21,13 @@ def getConfig(name, file='config.ini', default={}):
     cfg.read(configPwd, encoding='utf-8')
     def getval(key):
         if cfg.has_option(name, key):
-            return cfg.get(name, key)
+            ans = cfg.get(name, key)
+            if ans in ['True', 'False']: ans = eval(ans)
+            return ans;
         return default.get(key) or defaultConfig.get('.'.join([name, key]))
     return getval
+
+if __name__ == "__main__":
+    ans = getConfig('LOGGING')('print_file')
+    print(ans)
+    print(type(ans))
