@@ -45,6 +45,8 @@ sunday安装成功后默认的根目录在`~/.sunday`, 可修改根目录路径
 [x] 系统PAC支持  
 [x] 列表打印  
 [x] 多线程运行  
+[x] 密文加解密支持  
+[ ] LSP多语言支持  
 [ ] 开发环境配置  
 [ ] UI自动化测试工具  
 [ ] 前端辅助开发工具  
@@ -146,7 +148,7 @@ Optional:
 
 #### command-common
 
-(command-common)[https://github.com/pysunday/command-common]: 提供好用的命令行命令, 安装: `sunday_install https://github.com/pysunday/command-common.git#main`
+[command-common](https://github.com/pysunday/command-common): 提供好用的命令行命令, 安装: `sunday_install https://github.com/pysunday/command-common.git#main`
 
 命令名 | 来自插件 | 功能 | 是否需要登录
 ------ | -------- | ---- | ------------
@@ -157,5 +159,5 @@ Optional:
 
 ### 非官方插件
 
-**多个未收录的企业内部插件稳定运行中, 欢迎使用pysunday开发并告知收录！**
+**多个未收录的企业内部插件稳定运行中**
 

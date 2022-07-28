@@ -30,7 +30,7 @@ def aesCbcEncrypt(data, passphrase):
     iv = key_iv[32:]
     aes = AES.new(key, AES.MODE_CBC, iv)
     cipherbyte = base64.b64encode(b"Salted__" + salt + aes.encrypt(pad(data)))
-    return cipherbyte
+    return cipherbyte.decode()
 
 def aesCbcDecrypt(data, passphrase):
     if type(data) == str: data = data.encode()
@@ -43,7 +43,7 @@ def aesCbcDecrypt(data, passphrase):
     iv = key_iv[32:]
     aes = AES.new(key, AES.MODE_CBC, iv)
     plainbyte = unpad(aes.decrypt(data[16:]))
-    return plainbyte
+    return plainbyte.decode()
 
 if __name__ == '__main__':
     data = b'8879576hdud'

@@ -80,7 +80,7 @@ class Auth():
                 return self.ask(key, defaultValue, isMust, isSave)
         if isSave:
             # isPass则存储密文, 否则存储明文
-            tarVal = aesCbcEncrypt(value, cryptoKey).decode() if isPass else value
+            tarVal = aesCbcEncrypt(value, cryptoKey) if isPass else value
             cmd = 'echo %s=%s >> %s' % (key, tarVal, self.envPath)
             os.system(cmd)
         return value
