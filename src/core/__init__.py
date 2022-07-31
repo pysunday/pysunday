@@ -1,4 +1,5 @@
 # coding: utf-8
+from . import premust
 
 # 工具函数
 from .checkPacNet import *

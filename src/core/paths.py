@@ -4,7 +4,7 @@ from os import path, makedirs
 from sunday.core.getEnv import getEnv
 from dotenv import load_dotenv
 
-__all__ = ['rootCwd', 'logCwd', 'binCwd', 'envCwd', 'sundayLoginCwd', 'sundayToolsCwd']
+__all__ = ['rootCwd', 'logCwd', 'binCwd', 'envCwd', 'moduleLockCwd', 'sundayLoginCwd', 'sundayToolsCwd']
 
 # sunday家目录
 userHomeCwd = path.expanduser('~')
@@ -13,6 +13,7 @@ homePluginsCwd = path.join(rootCwd, 'plugins')
 binCwd = path.join(rootCwd, 'bin')
 envCwd = path.join(rootCwd, '.env')
 logCwd = path.join(rootCwd, 'log')
+moduleLockCwd = path.join(rootCwd, 'module-lock.json')
 path.exists(envCwd) and load_dotenv(envCwd)
 
 for p in [binCwd, logCwd, homePluginsCwd]:

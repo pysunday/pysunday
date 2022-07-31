@@ -6,9 +6,10 @@ import re
 import tqdm
 import stat
 import sunday.core.paths as paths
-from pydash.objects import pick as _pick
+from sunday.core.common import parseJson
 from sunday.core import cmdexec, Logger, MultiThread, getParser
 from urllib.parse import urlparse, urldefrag
+from sunday.core.inner import grenLoginAndToolsInit
 
 CMDINFO = {
     "version": "0.1.0",
@@ -31,6 +32,23 @@ from sunday.tools.%s import runcmd
 runcmd()
 '''
 
+# 插件安装信息的映射, key为type/name, value包括源目录地址、软链地址、type、name
+moduleLockConfig = {}
+
+def writeModuleLockConfig():
+    with open(paths.moduleLockCwd, 'w') as f:
+        f.write(json.dumps(list(moduleLockConfig.values()), indent=2))
+    logger.debug('插件安装信息写入成功: %s' % paths.moduleLockCwd)
+
+def moduleLockParse(module, config):
+    # 插件安装信息列表转映射
+    mtype = module['type']
+    mname = module['name']
+    config['%s/%s' % (mtype, mname)] = module
+
+[moduleLockParse(item, moduleLockConfig) for item in
+        parseJson(paths.moduleLockCwd, [], ['origin', 'target', 'type', 'name'], logger)]
+
 class InstallModule():
     """ 安装模块
     Arguments:
@@ -44,18 +62,16 @@ class InstallModule():
         self.settingFile = os.path.join(module, 'package.json')
         self.requirementFile = os.path.join(module, 'requirements.txt')
         # 配置关键字
-        self.config = self.getModuleConfig(self.settingFile, ['name', 'type', 'depend', 'bin'])
+        self.config = parseJson(self.settingFile, {}, ['name', 'type', 'depend', 'bin'], logger)
         self.events = {}
-    
+
+
     def getConfig(self, key):
         return self.config.get(key)
 
-    def getModuleConfig(self, modulePath, keywords):
-        """传入配置文件路径返回配置对象"""
-        if not os.path.exists(modulePath): return {}
-        with open(modulePath) as f: return _pick(json.load(f), keywords)
-    
+
     def installByCommon(self):
+        # 安装插件的公共执行代码
         if os.path.exists(self.requirementFile):
             cmdexec('pip install -r {}'.format(self.requirementFile))
         moduleType = self.getConfig('type')
@@ -66,9 +82,22 @@ class InstallModule():
         }[moduleType]
         linkTarget = os.path.join(sundayOnceCmd, moduleName)
         # 存在软链则先删除
-        if os.path.exists(linkTarget): os.remove(linkTarget)
+        if os.path.islink(linkTarget): os.remove(linkTarget)
         os.symlink(self.module, linkTarget)
         self.installSuccess('%s模块%s安装成功!' % (moduleType, moduleName))
+        moduleKey = '%s/%s' % (moduleType, moduleName)
+        if hasattr(moduleLockConfig, moduleKey):
+            moduleLockConfig[moduleKey].update({
+                'origin': self.module,
+                'target': linkTarget
+                })
+        else:
+            moduleLockConfig[moduleKey] = {
+                    'origin': self.module,
+                    'target': linkTarget,
+                    'type': moduleType,
+                    'name': moduleName
+                    }
 
     def installByLogin(self):
         """安装登录模块"""
@@ -213,7 +242,7 @@ class PullModule():
                 'errorCode': execcode,
                 'errorText': stderr
             })
-    
+
     def successHandle(self):
         self.pbar and self.pbar.update(1)
         self.successInstallList.append({})
@@ -221,20 +250,12 @@ class PullModule():
     def errorHandle(self):
         self.pbar and self.pbar.update(1)
         self.errorInstallList.append({})
-    
+
     def install(self, moduleTarget):
         moduler = InstallModule(moduleTarget)
         moduler.add_event('error', self.errorHandle)
         moduler.add_event('success', self.successHandle)
         moduler.install()
-    
-    def grenInitFile(self, pathname):
-        # 修改登录模块的__file__文件导出全部的登录模块
-        filename = os.path.join(pathname, '__init__.py')
-        filelist = list(filter(lambda n: n not in ['__init__.py', '__init__.pyc', '__pycache__'], os.listdir(pathname)))
-        with open(filename, 'w') as f:
-            f.write('\n'.join(['from . import %s' % i for i in filelist ]))
-        logger.debug('文件内容:\n'.join([filename, cmdexec('cat %s' % filename)[1]]))
 
     def runcmd(self):
         firstIdx = 0
@@ -252,8 +273,10 @@ class PullModule():
             self.pbar = tqdm.tqdm(total=len(self.modulesTarget))
             MultiThread(self.modulesTarget, lambda item, _: [self.install, (item,)]).start()
             self.pbar.close()
-            self.grenInitFile(paths.sundayLoginCwd)
-            self.grenInitFile(paths.sundayToolsCwd)
+            # 生成init文件
+            grenLoginAndToolsInit()
+            # 生成module-lock.json文件
+            writeModuleLockConfig()
             logger.info('执行模块安装%d个, 成功%d个, 失败%d个' % (modulesTargetLen, len(self.successInstallList), len(self.errorInstallList)))
 
 class Main():
@@ -261,11 +284,13 @@ class Main():
         pass
 
     def valid_url(self, url: str, console=True):
+        # 链接校验
         isValid = urlparse(url).scheme in ['ssh', 'http', 'https']
         if not isValid and console: print('非有效远程地址 %s' % url)
         return isValid
     
     def valid_path(self, pth: str, console=True):
+        # 路径校验
         modulePath = os.path.abspath(pth)
         isValid = os.path.exists(os.path.join(modulePath, 'package.json'))
         if not isValid and console: print('非有效本地目录 %s' % pth)
