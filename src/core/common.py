@@ -4,7 +4,8 @@ import sys
 import re
 import json
 from pydash import pick as _pick
-from sunday.core.globalvar import getvar, setvar
+from sunday.core.globalvar import getvar
+from sunday.core.globalKeyMaps import sdvar_logger
 
 def clear():
     """清理屏幕"""
@@ -25,8 +26,9 @@ def snake_to_pascal(snake_case):
     words = snake_case.split('_')
     return ''.join(word.title() for word in words)
 
-def parseJson(jsonPath, defaultValue={}, keywords=[], logger=getvar('sunday_logger')):
+def parseJson(jsonPath, defaultValue={}, keywords=[], logger=None):
     """传入json文件，返回解析后的数据"""
+    if not logger: logger = getvar(sdvar_logger)
     if not os.path.exists(jsonPath): return defaultValue
     with open(jsonPath) as f:
         try:

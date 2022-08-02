@@ -7,16 +7,17 @@ from os import path
 from sunday.core.globalvar import getvar, setvar
 from sunday.core.getConfig import getConfig
 import sunday.core.paths as paths
+from sunday.core.globalKeyMaps import sdvar_loggerid, sdvar_logger
 
-if not getvar('loggerId'):
+if not getvar(sdvar_loggerid):
     loggerId = datetime.datetime.today().isoformat()
-    setvar('loggerId', loggerId)
+    setvar(sdvar_loggerid, loggerId)
     if getConfig('LOGGING')('print_file'):
         @atexit.register
         def exitPrintLogfile():
-            print('\n    LOG FILE AT: %s' % path.join(paths.logCwd, loggerId))
+            getvar(sdvar_logger).info('LOG FILE AT: %s' % path.join(paths.logCwd, loggerId))
 
-logfile = path.join(paths.logCwd, getvar('loggerId'))
+logfile = path.join(paths.logCwd, getvar(sdvar_loggerid))
 
 logging.basicConfig(filename=logfile, level=logging.DEBUG, force=True,
         format='[%(asctime)s.%(msecs)-3d] %(levelname)s <%(name)s>: %(message)s')

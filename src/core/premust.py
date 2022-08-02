@@ -1,17 +1,20 @@
 # coding: utf-8
 import sunday.core.paths as paths
+import atexit
+import time
 from sunday.core.common import parseJson
 from os import path, remove, symlink
 from sunday.core.inner import grenLoginAndToolsInit
 from sunday.core.globalvar import getvar, setvar
 from sunday.core.logger import Logger
+from sunday.core.globalKeyMaps import sdvar_premust, sdvar_logger, sdvar_exectime
 
 __all__ = []
 
 
 def checkModuleExist():
     changeFlag = False
-    logger = getvar('sunday_logger')
+    logger = getvar(sdvar_logger)
     for item in parseJson(paths.moduleLockCwd, [], ['origin', 'target', 'type', 'name']):
         target = item['target']
         origin = item['origin']
@@ -32,7 +35,27 @@ def checkModuleExist():
     if changeFlag:
         grenLoginAndToolsInit()
 
-if not getvar('sunday_premust'):
-    setvar('sunday_premust', True)
-    setvar('sunday_logger', Logger('SUNDAY').getLogger())
+def initPrintTime():
+    now = time.time()
+    vars = { 'firstTime': now, 'preTime': now }
+    def printTime():
+        nowTime = time.time()
+        lastExecTime = nowTime - vars['preTime']
+        totalExecTime = nowTime - vars['firstTime']
+        vars['preTime'] = nowTime
+        return lastExecTime, totalExecTime
+    return printTime
+
+if not getvar(sdvar_premust):
+    setvar(sdvar_premust, True)
+    setvar(sdvar_logger, Logger('SUNDAY').getLogger())
+    setvar(sdvar_exectime, initPrintTime())
+
+    logger = getvar(sdvar_logger)
+    exectime = getvar(sdvar_exectime)
+
     checkModuleExist()
+    @atexit.register
+    def exitPrintExecInfo():
+        _, totalExecTime = exectime()
+        logger.info('program execution time %.2f s' % totalExecTime)

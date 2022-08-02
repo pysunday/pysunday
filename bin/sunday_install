@@ -9,7 +9,7 @@ import sunday.core.paths as paths
 from sunday.core.common import parseJson
 from sunday.core import cmdexec, Logger, MultiThread, getParser
 from urllib.parse import urlparse, urldefrag
-from sunday.core.inner import grenLoginAndToolsInit
+from sunday.core.inner import grenLoginAndToolsInit, printAllPlugin
 
 CMDINFO = {
     "version": "0.1.0",
@@ -69,7 +69,6 @@ class InstallModule():
     def getConfig(self, key):
         return self.config.get(key)
 
-
     def installByCommon(self):
         # 安装插件的公共执行代码
         if os.path.exists(self.requirementFile):
@@ -86,17 +85,17 @@ class InstallModule():
         os.symlink(self.module, linkTarget)
         self.installSuccess('%s模块%s安装成功!' % (moduleType, moduleName))
         moduleKey = '%s/%s' % (moduleType, moduleName)
-        if hasattr(moduleLockConfig, moduleKey):
-            moduleLockConfig[moduleKey].update({
+        configBase = {
                 'origin': self.module,
-                'target': linkTarget
-                })
+                'target': linkTarget,
+                }
+        if hasattr(moduleLockConfig, moduleKey):
+            moduleLockConfig[moduleKey].update(configBase)
         else:
             moduleLockConfig[moduleKey] = {
-                    'origin': self.module,
-                    'target': linkTarget,
                     'type': moduleType,
-                    'name': moduleName
+                    'name': moduleName,
+                    **configBase
                     }
 
     def installByLogin(self):
@@ -297,6 +296,9 @@ class Main():
         return isValid
 
     def run(self):
+        if self.isShowList:
+            printAllPlugin()
+            return
         modules = [['/'.join([self.git_url_base, m]), m][self.valid_url(m, False)]
             for m in self.modules] if self.git_url_base else self.modules
         valid_remote_modules = list(filter(self.valid_url, modules))
@@ -307,10 +309,11 @@ class Main():
 
 def runcmd():
     parser = getParser(**CMDINFO)
-    parser.add_argument('modules', nargs='+', metavar='MODULE_URL(S)', type=str,
+    parser.add_argument('modules', nargs='*', metavar='MODULE_URL(S)', type=str,
         help=u'安装模块的本地模块路径或者git地址, 支持传多个, 可混搭git仓库, 分支请用#字符拼接')
     parser.add_argument("--giturl", dest="git_url_base", metavar="GIT_URL_BASE",
         help=u"git元地址, 当存在该地址时则最终地址为giturl+module")
+    parser.add_argument("-l", "--list", dest="isShowList", action="store_true", default=False, help=u"打印所有的已安装安装")
     parser.add_argument("-N", "--notdepend", dest="isNotDepend", action="store_true", default=False,
         help=u"是否跳过依赖安装，如果安装本地模块，且依赖的模块也是本地安装则可设置为不安装依赖")
     handle = parser.parse_args(namespace=Main())
