@@ -7,7 +7,7 @@ from os import path, chmod, listdir, system
 from setuptools import setup
 from setuptools.command.install import install
 
-version = '0.2.6.3'
+version = '0.2.6.4'
 
 binCwd = path.join(path.dirname(path.realpath(__file__)), 'bin')
 if path.exists(binCwd):
@@ -26,7 +26,7 @@ with open("requirements.txt", "r") as fp:
 class Install(install):
     def run(self):
         install.run(self)
-        system('pip install -r requirements.txt')
+        system('pip3 install -r requirements.txt')
         print('''
                           #
   mmm   m   m  m mm    mmm#   mmm   m   m
