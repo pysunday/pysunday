@@ -13,7 +13,7 @@ def clear():
 
 def exit(str = ''):
     """退出程序"""
-    if str: print(str)
+    if str: getvar(sdvar_logger).error(str)
     sys.exit(1)
 
 def pascal_to_snake(camel_case):

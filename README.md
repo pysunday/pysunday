@@ -117,6 +117,12 @@ key2 = value
 
 配置程序中的请求是否走代理, 代理配置格式如`proxy = 127.0.0.1:8888`
 
+### GIT
+
+#### base: git_url_base
+
+配置git地址，当安装的插件或者依赖中的插件不存在git地址则使用该地址
+
 ## 内置命令
 
 ### `sunday_install`
@@ -124,19 +130,22 @@ key2 = value
 用于安装sunday插件
 
 ```console
-usage: sunday_install [-v] [-h] [--giturl GIT_URL_BASE] MODULE_URLS) [MODULE_URL(S ...]
+uusage: sunday_install [-v] [-h] [--giturl GIT_URL_BASE] [-l] [-N] [MODULE_URLS) [MODULE_URL(S ...]]
 
 安装sunday模块
 
 Positionals:
-  MODULE_URL(S)          安装模块的本地模块路径或者git地址, 支持传多个, 可混搭git仓库, 分支请用#字符拼接
+  MODULE_URL(S)          安装模块的本地模块路径或者仓库名称, 分支请用#字符拼接
 
 Optional:
   -v, --version          当前程序版本
   -h, --help             打印帮助说明
-  --giturl GIT_URL_BASE  git元地址, 当存在该地址时则最终地址为giturl+module
+  --giturl GIT_URL_BASE  git元地址, 取配置中的GIT.base字段，未配置则默认为ssh://git@github.com
+  -l, --list             打印所有的已安装安装
+  -N, --notdepend        是否跳过依赖安装，如果安装本地模块，且依赖的模块也是本地安装则可设置为不安装依赖
 
 使用案例:
+    sunday_install sunday/name1.git
     sunday_install https://website.com/sunday/name1.git https://website.com/sunday/name2.git
     sunday_install --giturl https://website.com sunday/name1.git https://website.com/sunday/name2.git sunday/name3.git https://website.com/sunday/name4.git
     sunday_install /path/to/package
