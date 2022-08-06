@@ -2,8 +2,9 @@
 import sunday.core.paths as paths
 import atexit
 import time
+import stat
 from sunday.core.common import parseJson
-from os import path, remove, symlink
+from os import path, remove, symlink, listdir, readlink, access, X_OK, chmod
 from sunday.core.inner import grenLoginAndToolsInit
 from sunday.core.globalvar import getvar, setvar
 from sunday.core.logger import Logger
@@ -11,8 +12,8 @@ from sunday.core.globalKeyMaps import sdvar_premust, sdvar_logger, sdvar_exectim
 
 __all__ = []
 
-
 def checkModuleExist():
+    # 核对插件存在情况
     changeFlag = False
     logger = getvar(sdvar_logger)
     for item in parseJson(paths.moduleLockCwd, [], ['origin', 'target', 'type', 'name']):
@@ -35,6 +36,19 @@ def checkModuleExist():
     if changeFlag:
         grenLoginAndToolsInit()
 
+def checkCommandExist():
+    # 核对命令软链是否合法
+    cmdList = filter(path.islink, map(lambda name:
+        path.join(paths.binCwd, name), listdir(paths.binCwd)))
+    for cmd in cmdList:
+        target = readlink(cmd)
+        if not path.exists(target):
+            remove(cmd)
+            logger.warning('命令不存在软链存在, 删除软链 %s' % path.basename(cmd))
+        elif not access(target, X_OK):
+            # 原文件无权限则添加执行权限
+            chmod(target, stat.S_IRWXU)
+
 def initPrintTime():
     now = time.time()
     vars = { 'firstTime': now, 'preTime': now }
@@ -55,6 +69,7 @@ if not getvar(sdvar_premust):
     exectime = getvar(sdvar_exectime)
 
     checkModuleExist()
+    checkCommandExist()
     @atexit.register
     def exitPrintExecInfo():
         _, totalExecTime = exectime()

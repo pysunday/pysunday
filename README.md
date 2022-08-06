@@ -21,11 +21,14 @@ pysunday已在pypi上发布
 
 更新：`python3 -m pip install --upgrade pysunday`
 
-sunday安装成功后默认的根目录在`~/.sunday`, 可修改根目录路径
+安装成功后需要执行`python3 -c '__import__("sunday.core.init")'`让sunday自动检查并初始化执行环境, 暂时只支持`zsh`、`bash`的环境初始化
 
-设置根目录: `export SUNDAY_ROOT=~/.sunday`
+或者手动修改shell的rc文件，添加：
 
-配置PATH: `export PATH=$SUNDAY_ROOT/bin:$PATH`
+```shell
+export SUNDAY_ROOT=~/.sunday
+export PATH=$SUNDAY_ROOT/bin:$PATH
+```
 
 ## Docker安装(试用)
 
@@ -117,7 +120,17 @@ key2 = value
 
 配置程序中的请求是否走代理, 代理配置格式如`proxy = 127.0.0.1:8888`
 
+### CRYPTO
+
+加密程序相关配置
+
+#### key=str
+
+key为加密用的密钥, 默认是HOWDUUDU, 可自行修改增加密码安全性
+
 ### GIT
+
+GIT相关配置, 如插件安装来源
 
 #### base: git_url_base
 

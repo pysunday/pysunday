@@ -48,6 +48,13 @@ def moduleLockParse(module, config):
     mname = module['name']
     config['%s/%s' % (mtype, mname)] = module
 
+def valid_path(pth: str, console=False):
+    # 路径校验, 返回是否是本地模块
+    modulePath = os.path.abspath(pth)
+    isValid = os.path.exists(os.path.join(modulePath, 'package.json'))
+    if not isValid and console: print('非有效本地目录 %s' % pth)
+    return isValid
+
 [moduleLockParse(item, moduleLockConfig) for item in
         parseJson(paths.moduleLockCwd, [], ['origin', 'target', 'type', 'name'], logger)]
 
@@ -174,7 +181,7 @@ class PullModule():
     Arguments:
     Attributes:
     """
-    def __init__(self, modules: str, pullType: str, isNotDepend: bool):
+    def __init__(self, modules: str, isNotDepend: bool, git_url_base: str):
         if not os.path.exists(homePluginsCwd): os.makedirs(homePluginsCwd)
         self.modules = modules
         self.errorList = []
@@ -183,8 +190,8 @@ class PullModule():
         self.successInstallList = []
         self.modulesTarget = []
         self.pbar = None
-        self.pullType = pullType or 'remote'
         self.isNotDepend = isNotDepend
+        self.git_url_base = git_url_base
 
     def getFileInfo(self, url):
         """解析git链接, 返回文件名、分支及仓库地址"""
@@ -208,9 +215,13 @@ class PullModule():
             def grenDependUrl(url: str):
                 if urlparse(url).netloc:
                     return url
+                elif valid_path(url):
+                    # 本地模块
+                    return os.path.abspath(url)
                 elif urlparse(module).netloc:
                     # 使用父级git链接
-                    return urlparse(module)._replace(path=url).geturl()
+                    [name, branch] = url.split('#')
+                    return urlparse(module)._replace(path=name, fragment=branch).geturl()
                 return '/'.join([self.git_url_base, url])
             tarDepend = list(map(grenDependUrl, depend))
             self.modules += [d for d in tarDepend if d not in self.modules]
@@ -223,7 +234,7 @@ class PullModule():
         if os.path.exists(targetPath) and execcode == 0:
             self.successInstallAfter(module, targetPath)
         else:
-            logger.error('{} fail {}'.format(self.pullType, stderr))
+            logger.error('copy module fail {}'.format(stderr))
             self.errorList.append({
                 'module': module,
                 'errorCode': execcode,
@@ -245,7 +256,7 @@ class PullModule():
             logger.info(cmdexec('%s status' % gitdir)[1])
             self.successInstallAfter(module, targetPath)
         else:
-            logger.error('{} {} {} fail {}'.format(self.pullType, branch, execType, stderr))
+            logger.error('pull module {} {} fail {}'.format(branch, execType, stderr))
             self.errorList.append({
                 'module': module,
                 'errorCode': execcode,
@@ -272,7 +283,7 @@ class PullModule():
         times = 1
         while (firstIdx != lastIdx):
             logger.info('第%d巡拉取%d个' % (times, lastIdx - firstIdx))
-            MultiThread(self.modules[firstIdx:lastIdx], lambda item, _: [self.pullModule if self.pullType == 'remote' else self.copyModule, (item,)]).start()
+            MultiThread(self.modules[firstIdx:lastIdx], lambda item, _: [self.pullModule if urlparse(item).netloc else self.copyModule, (item,)]).start()
             firstIdx = lastIdx
             lastIdx = len(self.modules)
             times += 1
@@ -292,31 +303,23 @@ class Main():
     def __init__(self):
         pass
 
-    def valid_path(self, pth: str, console=False):
-        # 路径校验
-        modulePath = os.path.abspath(pth)
-        isValid = os.path.exists(os.path.join(modulePath, 'package.json'))
-        if not isValid and console: print('非有效本地目录 %s' % pth)
-        return isValid
 
     def run(self):
         if self.isShowList:
             printAllPlugin()
             return
-        valid_remote_modules = []
-        valid_local_modules = []
+        valid_modules = []
         for module in self.modules:
-            if self.valid_path(module):
+            if valid_path(module):
                 # 本地地址
-                valid_local_modules.append(os.path.abspath(module))
+                valid_modules.append(os.path.abspath(module))
             elif urlparse(module).netloc:
                 # 网络地址, 带git仓库
-                valid_remote_modules.append(module)
+                valid_modules.append(module)
             else:
                 # 拼接git仓库
-                valid_remote_modules.append('/'.join([self.git_url_base, module]))
-        if len(valid_remote_modules) > 0: PullModule(valid_remote_modules, 'remote', self.isNotDepend).runcmd()
-        if len(valid_local_modules) > 0: PullModule(valid_local_modules, 'local', self.isNotDepend).runcmd()
+                valid_modules.append('/'.join([self.git_url_base, module]))
+        if len(valid_modules) > 0: PullModule(valid_modules, self.isNotDepend, self.git_url_base).runcmd()
 
 def runcmd():
     gitBase = getConfig('GIT')('base') or 'ssh://git@github.com'
