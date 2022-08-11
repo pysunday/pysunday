@@ -1,3 +1,5 @@
+**如有任何问题请及时告知，创作不易感谢支持！**
+
 # pysunday
 
 **pysunday** 是一款基于插件驱动的开发工具包, 旨降低程序员工具开发的复杂度, 目标向集环境、代理、工具等全面的开发框架.
@@ -178,6 +180,18 @@ Optional:
 `sd_getport` | common | 查看端口的占用情况 | 否
 `sd_chrome` | common | 命令行启动chrome | 否
 `sd_grepn` | common | 带行号的命令行搜索，过滤模块包目录、打包目录等 | 否
+
+### tools-imrobot
+
+[tools-imrobot](https://github.com/pysunday/tools-imrobot): 聊天机器人插件, 安装: `sunday_install https://github.com/pysunday/tools-imrobot.git#main`
+
+### login-zhipin
+
+[login-zhipin](https://github.com/pysunday/login-zhipin): zhipin网站登录插件, 安装: `sunday_install https://github.com/pysunday/login-zhipin.git#main`
+
+### tools-zhipin
+
+[tools-zhipin](https://github.com/pysunday/tools-zhipin): zhipin网站智能找工作、智能聊天插件, 安装: `sunday_install https://github.com/pysunday/tools-zhipin.git#main`
 
 ### 非官方插件
 
