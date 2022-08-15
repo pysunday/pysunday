@@ -59,7 +59,7 @@ def getParser(**argvs):
                 continue
             for cfg in cfgs:
                 tar = omit(cfg, ['name'])
-                if 'metavar' not in cfg and get(tar, 'action') not in ['store_false', 'store_true']:
+                if 'metavar' not in cfg and 'dest' in cfg and get(tar, 'action') not in ['store_false', 'store_true']:
                     tar['metavar'] = pascal_to_snake(cfg['dest']).upper()
                 tarparser.add_argument(*cfg['name'], **tar)
     # 兼容老用法
