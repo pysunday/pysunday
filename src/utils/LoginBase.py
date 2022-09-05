@@ -10,12 +10,20 @@ import os
 
 
 class LoginBase():
-    def __init__(self, file, logger=Logger('LoginBase').getLogger(), pacWifi=None, pacUrl=None):
+    def __init__(self, file, logger=Logger('LoginBase').getLogger(), pacWifi=None, pacUrl=None, ident=''):
+        '''
+        file: 目标登录对象执行文件
+        logger: 日志对象，用于日志打印
+        pacWifi: 匹配的wifi开启pac代理
+        pacUrl: 匹配的url开启pac代理
+        ident: 多用户标识，用于多用户认证
+        '''
         pwd = os.path.dirname(os.path.abspath(file))
         self.logger = logger
         cfg = getConfig('LOGIN')
-        self.cookiePwd = os.path.join(pwd, cfg('cookieFile'))
-        self.envPwd = os.path.join(pwd, cfg('envFile'))
+        identflag = ('-' if ident else '') + ident
+        self.cookiePwd = os.path.join(pwd, cfg('cookieFile') + ident)
+        self.envPwd = os.path.join(pwd, cfg('envFile') + ident)
         self.fetch = Fetch(pacWifi=pacWifi, pacUrl=pacUrl)
 
     def getCookiePwd(self):
