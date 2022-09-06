@@ -21,7 +21,7 @@ class LoginBase():
         pwd = os.path.dirname(os.path.abspath(file))
         self.logger = logger
         cfg = getConfig('LOGIN')
-        identflag = ('-' if ident else '') + ident
+        ident = ('-' if ident else '') + ident
         self.cookiePwd = os.path.join(pwd, cfg('cookieFile') + ident)
         self.envPwd = os.path.join(pwd, cfg('envFile') + ident)
         self.fetch = Fetch(pacWifi=pacWifi, pacUrl=pacUrl)
