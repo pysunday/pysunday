@@ -25,7 +25,7 @@ if os.environ.get(path_key).find(sunday_bin) == -1:
     exportList.append('export %s=%s:\$PATH' % (path_key, sunday_bin))
 
 def getShellRcPath():
-    shell = os.path.basename(os.environ.get('SHELL'))
+    shell = os.path.basename(os.environ.get('SHELL') or '')
     p = ''
     if shell == 'zsh':
         p = '.zshrc'
@@ -34,9 +34,11 @@ def getShellRcPath():
     if p: return os.path.join(os.environ['HOME'], p)
     return False
 
+rctext = '\n'.join(exportList)
 rcfile = getShellRcPath()
 if rcfile and len(exportList) > 1:
-    rctext = '\n'.join(exportList)
     if not os.path.exists(rcfile): cmdexec('touch %s' % rcfile)
     cmdexec('echo "\n%s" >> %s' % (rctext, rcfile))
     getvar(sdvar_logger).info('sunday 初始化成功！')
+else:
+    print(rctext)
