@@ -36,7 +36,7 @@ class LoginBase():
         '''保存cookie'''
         self.fetch.session.cookies.save(ignore_discard=True, ignore_expires=True)
 
-    def getCookie(self, useHistory = True):
+    def getCookie(self, useHistory=True):
         """ params(useHistory): 控制是否使用历史登陆态
             return(cookies, boolean): 返回cookie对象和是否登录标志
         """
@@ -65,10 +65,14 @@ class LoginBase():
         res = self.fetch.get(checkUrl)
         return res.status_code != 200 or res.url != checkUrl
 
-    def initRs(self, checkUrl):
+    def initRs(self, checkUrl, useHistory=True):
+        """
+        checkUrl: 检查登录的链接
+        useHistory: 是否使用历史，为False则为重新登录不用历史登录态
+        """
         session = self.fetch.session
-        session.cookies, isLogin = self.getCookie()
+        session.cookies, isLogin = self.getCookie(useHistory=useHistory)
         if isLogin and self.checkLogin(checkUrl):
-            session.cookies, isLogin = self.getCookie(useHistory = False)
+            session.cookies, isLogin = self.getCookie(useHistory=False)
         return self.fetch, isLogin
 
