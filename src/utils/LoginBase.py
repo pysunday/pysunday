@@ -48,6 +48,7 @@ class LoginBase():
             load_cookies = requests.utils.dict_from_cookiejar(load_cookiejar)
             self.logger.debug('是否存在登录态: 是')
             return requests.utils.cookiejar_from_dict(load_cookies), True
+        if hasCookieFile: os.remove(filename)
         self.logger.debug('是否存在登录态: 否')
         return LWPCookieJar(filename=filename), False
 
