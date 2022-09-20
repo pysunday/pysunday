@@ -1,4 +1,5 @@
 # coding: utf-8
+import os
 import requests
 from http.cookiejar import LWPCookieJar, CookieJar
 from sunday.core.getConfig import getConfig
@@ -6,7 +7,7 @@ from sunday.core.logger import Logger
 from sunday.core.fetch import Fetch
 import sunday.core.globalvar as globalvar
 from sunday.utils.tools import mergeObj
-import os
+from pydash import get
 
 
 class LoginBase():
@@ -34,7 +35,8 @@ class LoginBase():
 
     def saveCookie(self):
         '''保存cookie'''
-        self.fetch.session.cookies.save(ignore_discard=True, ignore_expires=True)
+        savefun = get(self.fetch, 'session.cookies.save')
+        if callable(savefun): savefun(ignore_discard=True, ignore_expires=True)
 
     def getCookie(self, useHistory=True):
         """ params(useHistory): 控制是否使用历史登陆态

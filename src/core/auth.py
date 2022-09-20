@@ -69,6 +69,10 @@ class Auth():
         self.val[key] = tarVal
         return self.val[key]
 
+    def save(self, key, value):
+        cmd = 'echo %s=%s >> %s' % (key, value, self.envPath)
+        os.system(cmd)
+
     def ask(self, key, defaultValue, isMust, isSave, isPass):
         tip = '%s%s: ' % (self.tip[key], '(%s)' % defaultValue if defaultValue else '')
         value = getpass(tip) if isPass else input(tip)
@@ -81,8 +85,7 @@ class Auth():
         if isSave:
             # isPass则存储密文, 否则存储明文
             tarVal = aesCbcEncrypt(value, cryptoKey) if isPass else value
-            cmd = 'echo %s=%s >> %s' % (key, tarVal, self.envPath)
-            os.system(cmd)
+            self.save(key, tarVal)
         return value
 
     def getParams(self):
