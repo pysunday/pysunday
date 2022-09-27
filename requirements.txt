@@ -10,3 +10,4 @@ pypac
 tqdm
 lxml
 pycryptodome
+json5

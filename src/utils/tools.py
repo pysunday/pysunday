@@ -26,3 +26,11 @@ def get_width(ans):
                 times += 1
         width = len(ans) + times
     return width, times
+
+def parseJsonp(text):
+    # 解析jsonp数据返回dict数据
+    import json5
+    start = text.find('(') + 1
+    end = text.rfind(')')
+    return json5.loads(text[start:end])
+
