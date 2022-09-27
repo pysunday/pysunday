@@ -1,6 +1,7 @@
 # coding: utf-8
 import os
 import types
+from datetime import datetime
 
 def mergeObj(ori={}, *objs):
     '''合并字典'''
@@ -34,3 +35,6 @@ def parseJsonp(text):
     end = text.rfind(')')
     return json5.loads(text[start:end])
 
+def currentTimestamp():
+    # 当前时间戳
+    return int(datetime.timestamp(datetime.now()) * 10000)

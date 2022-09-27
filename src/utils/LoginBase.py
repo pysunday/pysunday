@@ -9,6 +9,15 @@ import sunday.core.globalvar as globalvar
 from sunday.utils.tools import mergeObj
 from pydash import get
 
+class LoginError(Exception):
+    def __init__(self, code=10000, message=None, other='', errorMap={}):
+        self.code = code
+        tip = message or errorMap.get(code, '未知code: %s' % code)
+        self.message = tip + ('(%s)' % other if other else '')
+
+    def __str__(self):
+        return repr('%d (%s)' % (self.code, self.message))
+
 
 class LoginBase():
     def __init__(self, file, logger=Logger('LoginBase').getLogger(), pacWifi=None, pacUrl=None, ident=''):
