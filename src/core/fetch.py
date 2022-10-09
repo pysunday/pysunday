@@ -1,5 +1,6 @@
 # coding: utf-8
 import requests
+import time
 import sunday.core.paths as paths
 from http.cookiejar import LWPCookieJar
 from sunday.core.getEnv import getEnv
@@ -94,8 +95,10 @@ class Fetch():
 
     def requestByType(self, type, times, *args, **kwargs):
         try:
+            stime = time.time()
+            logger.debug('fetching %s %s' % (args, kwargs))
             res = getattr(self.session, type)(*args, **kwargs)
-            logger.info('fetch result %s:%d' % (res.url, res.status_code))
+            logger.info('fetch result %s (状态: %d, 用时: %.3f)' % (res.url, res.status_code, time.time() - stime))
             return res
         except Exception as e:
             if times >= 3:
@@ -103,13 +106,34 @@ class Fetch():
             times += 1
             logger.warning('接口请求失败, 进行第%d次尝试: %s' % (times, e))
             return self.requestByType(type, times, *args, **kwargs)
+
+    def requests_common(self, type, *args, **kwargs):
+        res = self.requestByType(type, 0, *args, **kwargs)
+        if not res.ok: logger.error('请求结果异常：' % res.text)
+        return res
     
     def get(self, *args, **kwargs):
-        return self.requestByType('get', 0, *args, **kwargs)
+        return self.requests_common('get', *args, **kwargs)
 
     def post(self, *args, **kwargs):
-        return self.requestByType('post', 0, *args, **kwargs)
-    
+        return self.requests_common('post', *args, **kwargs)
+
+    def requests_json_common(self, type, *args, **kwargs):
+        ans = self.requestByType(type, 0, *args, **kwargs)
+        try:
+            data = ans.json()
+            data.update({ 'text': ans.text })
+            return data
+        except Exception as e:
+            logger.error('请求结果json解析失败: %s' % ans.text)
+            return { 'sunday_error': True, 'msg': '返回结果非对象', 'url': ans.request.url, 'text': ans.text, 'type': type }
+
+    # get请求，返回dict对象
+    def get_json(self, *args, **kwargs): return self.requests_json_common('get', *args, **kwargs)
+
+    # post请求，返回dict对象
+    def post_json(self, *args, **kwargs): return self.requests_json_common('post', *args, **kwargs)
+
     def getCookiesDict(self):
         '''cookie转换成对象后返回'''
         cookies = self.session.cookies

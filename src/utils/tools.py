@@ -37,4 +37,4 @@ def parseJsonp(text):
 
 def currentTimestamp():
     # 当前时间戳
-    return int(datetime.timestamp(datetime.now()) * 10000)
+    return int(datetime.timestamp(datetime.now()) * 1000)
