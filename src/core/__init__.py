@@ -15,6 +15,7 @@ from .MultiThread import *
 from .auth import *
 from . import globalvar
 from .aesCbc import *
+from .getException import *
 
 # 日志
 from .logger import *
