@@ -81,7 +81,7 @@ class InstallModule():
     def installByCommon(self):
         # 安装插件的公共执行代码
         if os.path.exists(self.requirementFile):
-            cmdexec('pip3 install -r {}'.format(self.requirementFile))
+            cmdexec('pip3 install -r {}'.format(self.requirementFile), 10000)
         moduleType = self.getConfig('type')
         moduleName = self.getConfig('name')
         sundayOnceCmd = {

@@ -14,6 +14,7 @@ universal_newlines=False, startupinfo=None, creationflags=0
 
 def cmdexec(cmd, timeout = 10, **kwargs):
     """ 执行系统命令, 返回: code, stdout, stderr, 当code不为0则为报错"""
+    logger.warning('执行命令: %s' % cmd)
     subp = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, **kwargs)
     timer = Timer(timeout, lambda p: p.kill(), [subp])
     try:
@@ -25,6 +26,7 @@ def cmdexec(cmd, timeout = 10, **kwargs):
         getattr(logger, 'error' if code else 'info')('%d: %s' % (code, cmd))
         return code, stdout.decode(), stderr.decode()
     except Exception as e:
+        logger.exception(e)
         return 1, '', 'timeout'
     finally:
         timer.cancel()
