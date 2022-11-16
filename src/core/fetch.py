@@ -2,7 +2,7 @@
 import requests
 import time
 import sunday.core.paths as paths
-from http.cookiejar import LWPCookieJar
+from http.cookiejar import LWPCookieJar, CookieJar
 from sunday.core.getEnv import getEnv
 from sunday.core.logger import Logger
 from sunday.core.common import exit
@@ -109,7 +109,7 @@ class Fetch():
 
     def requests_common(self, type, *args, **kwargs):
         res = self.requestByType(type, 0, *args, **kwargs)
-        if not res.ok: logger.error('请求结果异常：' % res.text)
+        if not res.ok: logger.error('请求结果异常：%s' % res.text)
         return res
     
     def get(self, *args, **kwargs):
@@ -140,3 +140,11 @@ class Fetch():
         if 'get_dict' in cookies:
             return cookies.get_dict()
         return requests.utils.dict_from_cookiejar(cookies)
+
+    def setCookie(self, name, value, domain, rest={}, **argvs):
+        '''增加新的cookie, 入参参考cookielib.Cookie中的定义'''
+        cookies = self.session.cookies
+        standard = { 'path': '/', 'domain': domain, 'version': 0 }
+        standard.update(argvs)
+        cookie = CookieJar()._cookie_from_cookie_tuple((name, value, standard, rest), None)
+        cookies.set_cookie(cookie)

@@ -18,6 +18,7 @@ class MultiThread():
                 args['target'], args['args'] = params
             self.threads.append(threading.Thread(**args))
     
-    def start(self):
+    def start(self, isDelay=True):
         for i in self.threads: i.start()
-        for i in self.threads: i.join()
+        if isDelay:
+            for i in self.threads: i.join()
