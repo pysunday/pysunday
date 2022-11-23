@@ -12,6 +12,8 @@ from sunday.core.enver import enver
 from sunday.core.auth import Auth, getCurrentUser
 from pypac import PACSession
 from requests.auth import HTTPProxyAuth
+from sunday.core.globalvar import getvar, setvar
+from sunday.core.globalKeyMaps import sdvar_exception
 
 # 关闭由verify=False引起的提示
 requests.packages.urllib3.disable_warnings()
@@ -40,6 +42,12 @@ class Fetch():
         self._hasProxy = False
         self._hasPacProxy = False
         self.session = self.get_session()
+        self.jsonErrorMessage = None
+        self.jsonErrorNumber = 99999
+
+    def setJsonError(self, jsonErrorMessage='服务器异常请稍后重试!', jsonErrorNumber=99999):
+        self.jsonErrorNumber = jsonErrorNumber
+        self.jsonErrorMessage = jsonErrorMessage
 
     def get_session(self):
         # 返回session
@@ -126,6 +134,7 @@ class Fetch():
             return data
         except Exception as e:
             logger.error('请求结果json解析失败: %s' % ans.text)
+            if self.jsonErrorMessage: raise getvar(sdvar_exception)(self.jsonErrorNumber, self.jsonErrorMessage)
             return { 'sunday_error': True, 'msg': '返回结果非对象', 'url': ans.request.url, 'text': ans.text, 'type': type }
 
     # get请求，返回dict对象

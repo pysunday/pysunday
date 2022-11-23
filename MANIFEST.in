@@ -1,2 +1,3 @@
 include src/config.ini
 include requirements.txt
+include src/utils/cryptanalysis/*.js

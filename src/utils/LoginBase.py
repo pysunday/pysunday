@@ -5,22 +5,15 @@ from http.cookiejar import LWPCookieJar, CookieJar
 from sunday.core.getConfig import getConfig
 from sunday.core.logger import Logger
 from sunday.core.fetch import Fetch
+from sunday.core.getException import getException
 import sunday.core.globalvar as globalvar
 from sunday.utils.tools import mergeObj
 from pydash import get
 
-class LoginError(Exception):
-    def __init__(self, code=10000, message=None, other='', errorMap={}):
-        self.code = code
-        tip = message or errorMap.get(code, '未知code: %s' % code)
-        self.message = tip + ('(%s)' % other if other else '')
-
-    def __str__(self):
-        return repr('%d (%s)' % (self.code, self.message))
-
+LoginError = getException()
 
 class LoginBase():
-    def __init__(self, file, logger=Logger('LoginBase').getLogger(), pacWifi=None, pacUrl=None, ident=''):
+    def __init__(self, file, logger=Logger('LoginBase').getLogger(), pacWifi=None, pacUrl=None, ident='', error=[]):
         '''
         file: 目标登录对象执行文件
         logger: 日志对象，用于日志打印
@@ -35,6 +28,7 @@ class LoginBase():
         self.cookiePwd = os.path.join(pwd, cfg('cookieFile') + ident)
         self.envPwd = os.path.join(pwd, cfg('envFile') + ident)
         self.fetch = Fetch(pacWifi=pacWifi, pacUrl=pacUrl)
+        if len(error) == 2: self.fetch.setJsonError(*error)
 
     def getCookiePwd(self):
         return self.cookiePwd

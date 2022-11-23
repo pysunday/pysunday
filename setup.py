@@ -7,7 +7,7 @@ from os import path, chmod, listdir, system
 from setuptools import setup
 from setuptools.command.install import install
 
-version = '0.2.8.17'
+version = '0.2.8.19'
 
 binCwd = path.join(path.dirname(path.realpath(__file__)), 'bin')
 if path.exists(binCwd):
@@ -54,7 +54,7 @@ setup(
     author='ct',
     author_email='it17621000@163.com',
     python_requires='>3',
-    packages=['sunday', 'sunday.core', 'sunday.utils', 'sunday.login', 'sunday.tools'],
+    packages=['sunday', 'sunday.core', 'sunday.utils', 'sunday.login', 'sunday.tools', 'sunday.utils.cryptanalysis'],
     package_dir={'sunday': 'src'},
     install_requires=install_requires,
     extras_require={
@@ -80,5 +80,6 @@ setup(
     ],
     cmdclass={
         'install': Install,
-    }
+    },
+    include_package_data=True,
 )

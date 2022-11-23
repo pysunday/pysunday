@@ -1,5 +1,8 @@
+import os
 from sunday.core.globalvar import getvar, setvar
 from sunday.core.globalKeyMaps import sdvar_logger, sdvar_exception
+from sunday.core.paths import sundayCwd
+from sunday.core.cmdexec import cmdexec
 
 def grenKey(num1=None, num2=None):
     # 生成指定位数标识码, 如grenKey(16, 61)
@@ -33,7 +36,7 @@ def cryptBySm2(datastrList, key, cryptType='encrypt'):
     if type(datastrList) == str:
         datastrList = [datastrList]
     cmd = 'node {execPath} {key} {cipherMode} {datastr}'.format(
-            execPath=os.path.join(self.pwd, 'cryptanalysis', f'{cryptType}_sm2.js'),
+            execPath=os.path.join(sundayCwd, 'utils', 'cryptanalysis', f'{cryptType}_sm2.js'),
             key=key,
             cipherMode='1',
             datastr=' '.join(datastrList))
@@ -52,8 +55,8 @@ def cryptBySm4(datastrList, key, cryptType='encrypt'):
     if not datastrList: return []
     if type(datastrList) == str:
         datastrList = [datastrList]
-    cmd = "node {execPath} {key} '{datastr}'".format(
-            execPath=os.path.join(self.pwd, 'cryptanalysis', f'{cryptType}_sm4.js'),
+    cmd = "node {execPath} {key} {datastr}".format(
+            execPath=os.path.join(sundayCwd, 'utils', 'cryptanalysis', f'{cryptType}_sm4.js'),
             key=key,
             datastr=' '.join(datastrList))
     execcode, stdout, stderr = cmdexec(cmd)
@@ -72,7 +75,7 @@ def cryptByJsEncrypt(datastrList, key, cryptType='encrypt'):
     if type(datastrList) == str:
         datastrList = [datastrList]
     cmd = 'node {execPath} {key} {datastr}'.format(
-            execPath=os.path.join(self.pwd, 'cryptanalysis', f'{cryptType}_jsencrypt.js'),
+            execPath=os.path.join(sundayCwd, 'utils', 'cryptanalysis', f'{cryptType}_jsencrypt.js'),
             key=key,
             datastr=' '.join(datastrList))
     execcode, stdout, stderr = cmdexec(cmd)
@@ -80,3 +83,15 @@ def cryptByJsEncrypt(datastrList, key, cryptType='encrypt'):
         getvar(sdvar_logger).error(stderr)
         raise getvar(sdvar_exception)(-1, f'jsencrypt {cryptType} fail')
     return stdout.strip().split('\n')
+
+if __name__ == "__main__":
+    key = grenKey(16, 61)
+    print(f'========》grenKey(16, 61): {key}')
+    print(f'========》str2base16("{key}"): {str2base16(key)}')
+    publicKey = '596b71524573654d366b627244346b65'
+    origin = '{"a":"haha"}'
+    target = cryptBySm4(origin, publicKey, 'encrypt')
+    print(f"========》cryptBySm4('{origin}', '{publicKey}', 'decrypt'): {target}")
+    print(f"========》cryptBySm4('{target}', '{publicKey}', 'decrypt'): {cryptBySm4(target, publicKey, 'decrypt')}")
+    # print(f"cryptBySm2({key}, 'howduudu'): {cryptBySm2(key, 'howduudu')}")
+    # print(f"cryptByJsEncrypt({key}, 'howduudu', 'encrypt'): {cryptBySm4(key, 'howduudu', 'encrypt')}")

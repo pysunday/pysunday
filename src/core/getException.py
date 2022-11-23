@@ -5,7 +5,7 @@ class SundayError(Exception): pass
 
 def getException(errorMap={}):
     class CustomError(SundayError):
-        def __init__(self, code=10000, message=None, other=''):
+        def __init__(self, code=10000, message=None, other='', errorMap=errorMap):
             self.code = code
             tip = message or errorMap.get(code, '未知code: %s' % code)
             self.message = tip + ('(%s)' % other if other else '')
