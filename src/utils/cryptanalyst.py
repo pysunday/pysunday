@@ -65,7 +65,7 @@ def cryptBySm4(datastrList, key, cryptType='encrypt'):
         raise getvar(sdvar_exception)(-1, f'sm4 {cryptType} fail')
     return stdout.strip().split('\n')
 
-def cryptByJsEncrypt(datastrList, key, cryptType='encrypt'):
+def cryptByJsEncrypt(datastrList, key, cryptType='encrypt', isHex=False):
     """
     jsencrypt加解密
     key: 公钥
@@ -75,7 +75,7 @@ def cryptByJsEncrypt(datastrList, key, cryptType='encrypt'):
     if type(datastrList) == str:
         datastrList = [datastrList]
     cmd = 'node {execPath} {key} {datastr}'.format(
-            execPath=os.path.join(sundayCwd, 'utils', 'cryptanalysis', f'{cryptType}_jsencrypt.js'),
+            execPath=os.path.join(sundayCwd, 'utils', 'cryptanalysis', f'{cryptType}_jsencrypt{"_hex" if isHex else ""}.js'),
             key=key,
             datastr=' '.join(datastrList))
     execcode, stdout, stderr = cmdexec(cmd)
