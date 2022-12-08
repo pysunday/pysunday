@@ -84,6 +84,25 @@ def cryptByJsEncrypt(datastrList, key, cryptType='encrypt', isHex=False):
         raise getvar(sdvar_exception)(-1, f'jsencrypt {cryptType} fail')
     return stdout.strip().split('\n')
 
+def cryptByCryptoJS(datastrList, key, cryptType='encrypt', mode='ECB'):
+    """
+    cryptojs加解密
+    key: 公钥
+    cryptType: encrypt(加密)、decrypt(解密)
+    mode: 加密方式
+    """
+    if not datastrList: return []
+    if type(datastrList) == str: datastrList = [datastrList]
+    cmd = 'node {execPath} {key} {datastr}'.format(
+            execPath=os.path.join(sundayCwd, 'utils', 'cryptanalysis', f'{cryptType}_cryptojs_{mode}.js'),
+            key=key,
+            datastr=' '.join(datastrList))
+    execcode, stdout, stderr = cmdexec(cmd)
+    if execcode != 0:
+        getvar(sdvar_logger).error(stderr)
+        raise getvar(sdvar_exception)(-1, f'cryptojs {cryptType} {mode} fail')
+    return stdout.strip().split('\n')
+
 if __name__ == "__main__":
     key = grenKey(16, 61)
     print(f'========》grenKey(16, 61): {key}')
