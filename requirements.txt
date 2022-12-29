@@ -11,3 +11,4 @@ tqdm
 lxml
 pycryptodome
 json5
+Pillow

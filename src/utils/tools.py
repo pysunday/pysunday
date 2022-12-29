@@ -28,12 +28,17 @@ def get_width(ans):
         width = len(ans) + times
     return width, times
 
-def parseJsonp(text):
+def parseJsonp(text, defvalue={}):
     # 解析jsonp数据返回dict数据
     import json5
-    start = text.find('(') + 1
-    end = text.rfind(')')
-    return json5.loads(text[start:end])
+    try:
+        start = text.find('(') + 1
+        end = text.rfind(')')
+        return json5.loads(text[start:end])
+    except Exception as e:
+        defvalue['sunday_msg'] = str(e)
+        defvalue['sunday_ok'] = False
+        return defvalue
 
 def currentTimestamp():
     # 当前时间戳

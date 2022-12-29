@@ -130,8 +130,13 @@ class Fetch():
         ans = self.requestByType(type, 0, *args, **kwargs)
         try:
             data = ans.json()
-            data.update({ 'text': ans.text })
-            return data
+            if hasattr(data, 'update'):
+                data.update({ 'text': ans.text })
+                return data
+            return {
+                    'data': data,
+                    'text': ans.text,
+                    }
         except Exception as e:
             logger.error('请求结果json解析失败: %s' % ans.text)
             if self.jsonErrorMessage: raise getvar(sdvar_exception)(self.jsonErrorNumber, self.jsonErrorMessage)
