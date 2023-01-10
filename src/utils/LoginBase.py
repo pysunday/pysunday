@@ -6,6 +6,8 @@ from sunday.core.getConfig import getConfig
 from sunday.core.logger import Logger
 from sunday.core.fetch import Fetch
 from sunday.core.getException import getException
+from sunday.core.globalvar import getvar, setvar
+from sunday.core.globalKeyMaps import sdvar_exception
 import sunday.core.globalvar as globalvar
 from sunday.utils.tools import mergeObj
 from pydash import get
@@ -64,14 +66,16 @@ class LoginBase():
         cookie = CookieJar()._cookie_from_cookie_tuple((name, value, standard, rest), None)
         cookies.set_cookie(cookie)
     
-    def checkLogin(self, checkUrl):
+    def checkLogin(self, checkUrl=None):
         '''确认是否登录成功, 方法: 请求首页, 如果跳到登录页则说明登录态失效'''
         # 服务端存在缓存因此请求两次
+        if checkUrl is None:
+            raise getvar(sdvar_exception)(-1, '检查登录状态的链接不能为空')
         self.fetch.get(checkUrl)
         res = self.fetch.get(checkUrl)
         return res.status_code != 200 or res.url != checkUrl
 
-    def initRs(self, checkUrl, useHistory=True):
+    def initRs(self, checkUrl=None, useHistory=True):
         """
         checkUrl: 检查登录的链接
         useHistory: 是否使用历史，为False则为重新登录不用历史登录态

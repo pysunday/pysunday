@@ -7,7 +7,7 @@ from os import path, chmod, listdir, system
 from setuptools import setup
 from setuptools.command.install import install
 
-version = '0.2.8.21'
+version = '0.2.8.22'
 
 binCwd = path.join(path.dirname(path.realpath(__file__)), 'bin')
 if path.exists(binCwd):
