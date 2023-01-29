@@ -1,6 +1,8 @@
 # coding: utf-8
 import os
 import requests
+import sunday.core.paths as paths
+import sunday.core.globalvar as globalvar
 from http.cookiejar import LWPCookieJar, CookieJar
 from sunday.core.getConfig import getConfig
 from sunday.core.logger import Logger
@@ -8,14 +10,13 @@ from sunday.core.fetch import Fetch
 from sunday.core.getException import getException
 from sunday.core.globalvar import getvar, setvar
 from sunday.core.globalKeyMaps import sdvar_exception
-import sunday.core.globalvar as globalvar
 from sunday.utils.tools import mergeObj
 from pydash import get
 
 LoginError = getException()
 
 class LoginBase():
-    def __init__(self, file, logger=Logger('LoginBase').getLogger(), pacWifi=None, pacUrl=None, ident='', error=[]):
+    def __init__(self, file=paths.cacheCwd, logger=Logger('LoginBase').getLogger(), pacWifi=None, pacUrl=None, ident='', error=[]):
         '''
         file: 目标登录对象执行文件
         logger: 日志对象，用于日志打印
@@ -23,7 +24,8 @@ class LoginBase():
         pacUrl: 匹配的url开启pac代理
         ident: 多用户标识，用于多用户认证
         '''
-        pwd = os.path.dirname(os.path.abspath(file))
+        pwd = os.path.abspath(file)
+        if os.path.isdir(pwd) == False: pwd = os.path.dirname(pwd)
         self.logger = logger
         cfg = getConfig('LOGIN')
         ident = ('-' if ident else '') + ident

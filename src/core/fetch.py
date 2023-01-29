@@ -2,10 +2,10 @@
 import requests
 import time
 import sunday.core.paths as paths
+import validators
 from http.cookiejar import LWPCookieJar, CookieJar
 from sunday.core.getEnv import getEnv
 from sunday.core.logger import Logger
-from sunday.core.common import exit
 from sunday.core.checkPacNet import checkPacNet
 from sunday.core.getConfig import getConfig
 from sunday.core.enver import enver
@@ -14,6 +14,7 @@ from pypac import PACSession
 from requests.auth import HTTPProxyAuth
 from sunday.core.globalvar import getvar, setvar
 from sunday.core.globalKeyMaps import sdvar_exception
+from pydash import omit, get
 
 # 关闭由verify=False引起的提示
 requests.packages.urllib3.disable_warnings()
@@ -35,13 +36,14 @@ headers_post = {
 
 logger = Logger('Fetch').getLogger()
 class Fetch():
-    def __init__(self, pacWifi = None, pacUrl = None, pacWifiName = None):
+    def __init__(self, pacWifi=None, pacUrl=None, pacWifiName=None, proxy=None):
         # pacWifiName 兼容老写法
         self.pacWifi = pacWifi or pacWifiName
         self.pacUrl = pacUrl
         self._hasProxy = False
+        self._proxystr = proxy
         self._hasPacProxy = False
-        self.session = self.get_session()
+        self.session = self.get_session(proxy)
         self.jsonErrorMessage = None
         self.jsonErrorNumber = 99999
 
@@ -49,9 +51,9 @@ class Fetch():
         self.jsonErrorNumber = jsonErrorNumber
         self.jsonErrorMessage = jsonErrorMessage
 
-    def get_session(self):
+    def get_session(self, proxy=None):
         # 返回session
-        proxy = getConfig('PROXY')('proxy')
+        proxy = proxy or getConfig('PROXY')('proxy')
         session = requests.session() if proxy else PACSession()
         self.openProxy(session, proxy)
         session.headers.update(headers)
@@ -61,7 +63,14 @@ class Fetch():
     def openProxy(self, session, proxy):
         '''开启代理'''
         if proxy:
-            logger.warning('存在代理%s' % proxy)
+            self._proxystr = proxy
+            if validators.url(proxy) == True:
+                proxy = requests.get(proxy).text
+            prevProxy = get(session, 'proxies.http')
+            if prevProxy is None:
+                logger.warning(f'设置代理：{proxy}')
+            elif prevProxy != proxy:
+                logger.warning(f'更换代理：{prevProxy} => {proxy}')
             session.proxies = {
                 'http': proxy,
                 'https': proxy
@@ -82,7 +91,14 @@ class Fetch():
     
     def hasProxy(self):
         '''返回是否开启代理'''
-        return self._hasProxy
+        if self._hasProxy != True: return False
+        proxy = get(self.session, 'proxies.http'),
+        return {
+                'hasProxy': self._hasProxy,
+                'proxystr': self._proxystr,
+                'proxy': proxy,
+                'proxytype': None if proxy == self._proxystr else 'url'
+                }
 
     def hasPacProxy(self):
         '''返回是否开启pac'''
@@ -104,15 +120,17 @@ class Fetch():
     def requestByType(self, type, times, *args, **kwargs):
         try:
             stime = time.time()
-            logger.debug('fetching %s %s' % (args, kwargs))
-            res = getattr(self.session, type)(*args, **kwargs)
+            params = omit(kwargs, ['timeout_time'])
+            logger.debug('fetching %s %s' % (args, params))
+            res = getattr(self.session, type)(*args, timeout=15, **params)
             logger.info('fetch result %s (状态: %d, 用时: %.3f)' % (res.url, res.status_code, time.time() - stime))
             return res
         except Exception as e:
-            if times >= 3:
-                exit('第%d次尝试失败, 请检查网络后重试!' % times)
+            if times >= kwargs.get('timeout_time', 3):
+                raise getvar(sdvar_exception)(-1, '第%d次尝试失败, 请检查网络后重试!' % times)
+            logger.warning('接口请求失败, 进行第%d次尝试: %s' % (times + 1, e))
+            if self.hasProxy().get('proxytype') == 'url': self.openProxy(self.session, self.hasProxy().get('proxystr'))
             times += 1
-            logger.warning('接口请求失败, 进行第%d次尝试: %s' % (times, e))
             return self.requestByType(type, times, *args, **kwargs)
 
     def requests_common(self, type, *args, **kwargs):

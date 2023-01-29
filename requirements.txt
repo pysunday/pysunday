@@ -12,3 +12,4 @@ lxml
 pycryptodome
 json5
 Pillow
+validators

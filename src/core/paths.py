@@ -13,10 +13,11 @@ homePluginsCwd = path.join(rootCwd, 'plugins')
 binCwd = path.join(rootCwd, 'bin')
 envCwd = path.join(rootCwd, '.env')
 logCwd = path.join(rootCwd, 'log')
+cacheCwd = path.join(rootCwd, 'cache')
 moduleLockCwd = path.join(rootCwd, 'module-lock.json')
 path.exists(envCwd) and load_dotenv(envCwd)
 
-for p in [binCwd, logCwd, homePluginsCwd]:
+for p in [binCwd, logCwd, homePluginsCwd, cacheCwd]:
     if not path.exists(p): makedirs(p)
 
 # sunday模块目录

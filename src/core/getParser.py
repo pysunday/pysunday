@@ -2,6 +2,7 @@
 import argparse
 from pydash import pick, omit, get
 from .common import pascal_to_snake
+from sunday.core.logger import setLogLevel, logLevelKeys
 
 arr = ['version', 'params']
 
@@ -38,8 +39,6 @@ def getParser(**argvs):
     )
     parser._positionals.title = 'Positionals'
     parser._optionals.title = 'Optional'
-    parser.add_argument('-v', '--version', action='version', version=commandObj['version'] or '0.0.0', help='当前程序版本')
-    parser.add_argument('-h', '--help', action='help', default=argparse.SUPPRESS, help='打印帮助说明')
     subparsers = None
     subparsersObj = {}
     if 'params' in commandObj and type(commandObj['params']) == dict:
@@ -63,5 +62,18 @@ def getParser(**argvs):
                     tar['metavar'] = pascal_to_snake(cfg['dest']).upper()
                 tarparser.add_argument(*cfg['name'], **tar)
     # 兼容老用法
+    parser.add_argument('-v', '--version', action='version', version=commandObj['version'] or '0.0.0', help='当前程序版本')
+    parser.add_argument('-h', '--help', action='help', default=argparse.SUPPRESS, help='打印帮助说明')
+    parser.add_argument(
+            '--loglevel',
+            default='debug',
+            metavar='LEVEL',
+            dest='loglevel',
+            choices=[*logLevelKeys, *[key.upper() for key in logLevelKeys]],
+            help=f'日志等级（{"、".join(logLevelKeys)}）, 默认debug')
+    def parse_args(*args, **kwargs):
+        setLogLevel(parser.parse_known_args()[0].loglevel)
+        return parser.parse_known_args(*args, **kwargs)[0]
+    parser.parse_args = parse_args
     if not subparsers: return parser
     return parser, subparsersObj

@@ -16,7 +16,7 @@ def getException(errorMap={}, allowAttr=[]):
                 setattr(self, key, kwargs.get(key) or '')
 
         def __str__(self):
-            return repr('%d (%s)' % (self.code, self.message))
+            return repr('%d %s' % (self.code, self.message))
 
         def __iter__(self):
             iters = dict((x,y) for x, y in self.__dict__.items() if x[:2] != '__')
