@@ -8,7 +8,8 @@ from os import path, remove, symlink, listdir, readlink, access, X_OK, chmod
 from sunday.core.inner import grenLoginAndToolsInit
 from sunday.core.globalvar import getvar, setvar
 from sunday.core.logger import Logger
-from sunday.core.globalKeyMaps import sdvar_premust, sdvar_logger, sdvar_exectime
+from sunday.core.globalKeyMaps import sdvar_premust, sdvar_logger, sdvar_exectime, sdvar_loglevel
+from sunday.core.getConfig import getConfig
 
 __all__ = []
 
@@ -64,6 +65,7 @@ if not getvar(sdvar_premust):
     setvar(sdvar_premust, True)
     setvar(sdvar_logger, Logger('SUNDAY').getLogger())
     setvar(sdvar_exectime, initPrintTime())
+    setvar(sdvar_loglevel, getConfig('LOGGING')('level') or 'ERROR')
 
     logger = getvar(sdvar_logger)
     exectime = getvar(sdvar_exectime)

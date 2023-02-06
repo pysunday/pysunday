@@ -25,3 +25,6 @@ from .fetch import *
 
 # 目录
 from . import paths
+
+# 常量键
+from .globalKeyMaps import *

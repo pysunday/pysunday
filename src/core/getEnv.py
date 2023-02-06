@@ -2,5 +2,5 @@
 import os
 
 def getEnv(key):
-    '''返回env中对应key的值'''
+    '''返回键名为key的系统环境变量值'''
     return os.environ.get(key)

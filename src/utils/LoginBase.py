@@ -16,14 +16,31 @@ from pydash import get
 LoginError = getException()
 
 class LoginBase():
+    """
+    LoginBase为登录插件开发必须的原始类，供登录插件继承
+
+    **Usage:**
+
+    ```python
+    from sunday.utils.LoginBase import LoginBase
+    class MyLogin(LoginBase):
+        def __init__(self, useLoginState=True, ident=None):
+            self.logger = Logger('MyLogin').getLogger()
+            LoginBase.__init__(self, logger=self.logger, ident=ident or '', error=[99999, '网站接口异常，请稍后重试'])
+            checkUrl = 'http://host:port/getCurrentUser'
+            self.rs, self.isLogin = self.initRs(checkUrl, useLoginState)
+    ```
+
+    **Parameters:**
+
+    * **logger:** `Logger` -- 子类调用传入，可以保持日志打印一致
+    * **pacWifi:** `str` -- wifi名称，如果当前网络连入的wifi相同则使用pac代理
+    * **pacUrl:** `str` -- url地址，尝试请求该url，如果能请求到则使用pac代理，一般为内网链接
+    * **ident:** `str` -- 多用户标识，用于多用户认证
+    * **error:** `list` -- 数组元素为两个时生效，与`sunday.core.fetch.Fetch.setJsonError`入参值一致
+    * **file(已弃用):** `str` -- 目标登录对象执行文件
+    """
     def __init__(self, file=paths.cacheCwd, logger=Logger('LoginBase').getLogger(), pacWifi=None, pacUrl=None, ident='', error=[]):
-        '''
-        file: 目标登录对象执行文件
-        logger: 日志对象，用于日志打印
-        pacWifi: 匹配的wifi开启pac代理
-        pacUrl: 匹配的url开启pac代理
-        ident: 多用户标识，用于多用户认证
-        '''
         pwd = os.path.abspath(file)
         if os.path.isdir(pwd) == False: pwd = os.path.dirname(pwd)
         self.logger = logger
@@ -69,8 +86,15 @@ class LoginBase():
         cookies.set_cookie(cookie)
     
     def checkLogin(self, checkUrl=None):
-        '''确认是否登录成功, 方法: 请求首页, 如果跳到登录页则说明登录态失效'''
-        # 服务端存在缓存因此请求两次
+        """
+        程序默认的登录成功判断方法, 即: 请求首页, 如果跳到登录页则说明登录态失效
+
+        这种判断方式根据目标网站处理逻辑不同可能会不准确，一般子类会重构这个方法
+
+        **Parameters:**
+
+        * **checkUrl:** `str` -- 用于检查是否登录成功的网站链接
+        """
         if checkUrl is None:
             raise getvar(sdvar_exception)(-1, '检查登录状态的链接不能为空')
         self.fetch.get(checkUrl)
@@ -79,8 +103,12 @@ class LoginBase():
 
     def initRs(self, checkUrl=None, useHistory=True):
         """
-        checkUrl: 检查登录的链接
-        useHistory: 是否使用历史，为False则为重新登录不用历史登录态
+        初始化会话
+
+        **Parameters:**
+
+        * **checkUrl:** `str` -- 用于检查是否登录成功的网站链接
+        * **useHistory:** `bool` -- 标记是否使用上一次的登录态，为False则为重新登录不用历史登录态
         """
         session = self.fetch.session
         session.cookies, isLogin = self.getCookie(useHistory=useHistory)

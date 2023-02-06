@@ -1,0 +1,73 @@
+site_name: PYSunday
+# site_url: https://www.mkdocs.org/
+site_description: pysunday文档
+site_author: Rnet Ao
+
+# repo_url: https://github.com/pysunday/pysunday/
+# edit_uri: blob/master/docs/
+
+copyright: Copyright &copy; 2021 <a href="https://github.com/pysunday/pysunday">PYSunday</a>, 负责人 <a href="https://howduudu.tech">Rnet Ao</a>.
+
+theme:
+    name: mkdocs
+    shortcuts:
+        help: 191    # ?
+        next: 78     # n
+        previous: 80 # p
+        search: 83   # s
+    nav_style: dark
+    locale: zh_CN
+    highlightjs: true
+    hljs_languages:
+        - yaml
+    navigation_depth: 4
+
+nav:
+    - 首页: index.md
+    - 开始使用: getting-started.md
+    - 教程:
+      - 教程: guide/README.md
+      - 安装: guide/install.md
+      - 配置: guide/setting.md
+      - 常量与路径: guide/const-path.md
+      - API-接口请求: guide/api-fetch.md
+      - API-命令入参(待补充): guide/api-cmdparams.md
+      - API-多线程: guide/api-multi-thread.md
+      - API-报错捕获: guide/api-exception.md
+      - API-日志记录: guide/api-logging.md
+      - API-登录管理: guide/api-login.md
+      - API-邮件通知: guide/api-mail.md
+      - API-加密解密: guide/api-encrypt.md
+      - API-列表打印: guide/api-tableprint.md
+      - API-其它: guide/api-list.md
+      - 工具插件开发(待补充): guide/tools-plugin-example.md
+      - 登录插件开发(待补充): guide/login-plugin-example.md
+      - 插件-代理插件讲解(待补充): guide/plugin-proxy.md
+      - 插件-直聘插件讲解(待补充): guide/plugin-zhipin.md
+    - 插件: plugins.md
+
+extra_css:
+    - css/extra.css
+    - css/autodoc.css
+
+extra:
+  generator: false
+
+markdown_extensions:
+    - toc:
+        permalink: 
+    - attr_list
+    - def_list
+    - tables
+    - pymdownx.highlight:
+        use_pygments: false
+    - pymdownx.snippets
+    - pymdownx.superfences
+    - callouts
+    - mdx_gh_links:
+        user: mkdocs
+        repo: mkdocs
+    - mkdocs-click
+    - admonition
+    - codehilite
+    - mkautodoc

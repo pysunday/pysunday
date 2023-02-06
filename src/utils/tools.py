@@ -29,7 +29,13 @@ def get_width(ans):
     return width, times
 
 def parseJsonp(text, defvalue={}):
-    # 解析jsonp数据返回dict数据
+    """
+    解析jsonp数据返回dict数据
+
+    **Parameters:**
+
+    * **text:** `str` -- jsonp数据字符串, 格式如：`jsonp_12345({})`
+    """
     import json5
     try:
         start = text.find('(') + 1
@@ -41,5 +47,7 @@ def parseJsonp(text, defvalue={}):
         return defvalue
 
 def currentTimestamp():
-    # 当前时间戳
+    """
+    返回当前时间戳, 单位为毫秒
+    """
     return int(datetime.timestamp(datetime.now()) * 1000)

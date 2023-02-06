@@ -7,7 +7,7 @@ from os import path, chmod, listdir, system
 from setuptools import setup
 from setuptools.command.install import install
 
-version = '0.2.8.23'
+version = '0.3.0'
 
 binCwd = path.join(path.dirname(path.realpath(__file__)), 'bin')
 if path.exists(binCwd):
@@ -61,7 +61,7 @@ setup(
         'debug': ['ipython', 'ipdb']
     },
     classifiers=[
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
         'Environment :: Web Environment',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: Apache Software License',

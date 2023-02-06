@@ -8,26 +8,69 @@ from sunday.core.globalvar import getvar
 from sunday.core.globalKeyMaps import sdvar_logger
 
 def clear():
-    """清理屏幕"""
+    """清空屏幕"""
     os.system('clear')
 
-def exit(str = ''):
-    """退出程序"""
-    if str: getvar(sdvar_logger).error(str)
+def exit(text=''):
+    """
+    退出程序
+
+    **Parameters:**
+
+    * **text:** `str` -- 程序退出并打印退出提示文本
+    """
+    if text: getvar(sdvar_logger).critical(text)
     sys.exit(1)
 
-def pascal_to_snake(camel_case):
-    """驼峰转蛇形"""
-    snake_case = re.sub(r"(?P<key>[A-Z])", r"_\g<key>", camel_case)
-    return snake_case.lower().strip('_')
+def pascal_to_snake(text):
+    """
+    驼峰转蛇形
 
-def snake_to_pascal(snake_case):
-    """蛇形转驼峰"""
-    words = snake_case.split('_')
+    **Usage:**
+
+    ```
+    >>> from sunday.core.common import pascal_to_snake
+    >>> pascal_to_snake('HelloWorld')
+    hello_world
+    ```
+
+    **Parameters:**
+
+    * **text:** `str` -- 驼峰串
+    """
+    word = re.sub(r"(?P<key>[A-Z])", r"_\g<key>", text)
+    return word.lower().strip('_')
+
+def snake_to_pascal(text):
+    """
+    蛇形转驼峰
+
+    **Usage:**
+
+    ```
+    >>> from sunday.core.common import snake_to_pascal
+    >>> snake_to_pascal('hello_world')
+    HelloWorld
+    ```
+
+    **Parameters:**
+
+    * **text:** `str` -- 蛇形串
+    """
+    words = text.split('_')
     return ''.join(word.title() for word in words)
 
 def parseJson(jsonPath, defaultValue={}, keywords=[], logger=None):
-    """传入json文件，返回解析后的数据"""
+    """
+    传入json文件，返回解析后的json数据
+
+    **Parameters:**
+
+    * **jsonPath:** `str` -- 文件路径
+    * **defaultValue:** `list | dict` -- 文件读取失败时返回的默认数据
+    * **keywords:** `list` -- 需要的键集合
+    * **logger:** `str` -- 日志对象
+    """
     if not logger: logger = getvar(sdvar_logger)
     if not os.path.exists(jsonPath): return defaultValue
     with open(jsonPath) as f:

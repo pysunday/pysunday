@@ -22,6 +22,22 @@ def bytes_to_key(data, salt, output=48):
     return final_key[:output]
 
 def aesCbcEncrypt(data, passphrase):
+    """
+    aes-cbc加密，PYSunday内部文件使用的加密
+
+    **Usage:**
+
+    ```
+    >>> from sunday.core.aesCbc import aesCbcEncrypt
+    >>> print(aesCbcEncrypt(b'helloworld', b'HOWDUUDU'))
+    U2FsdGVkX18eeWRf74A9dp7QlYRKjUTuq4O5U61AcoE=
+    ```
+
+    **Parameters:**
+
+    * **data:** `str` -- 明文字符串
+    * **passphrase:** `int` -- 密钥
+    """
     if type(data) == str: data = data.encode()
     if type(passphrase) == str: passphrase = passphrase.encode()
     salt = Random.new().read(8)
@@ -33,6 +49,22 @@ def aesCbcEncrypt(data, passphrase):
     return cipherbyte.decode()
 
 def aesCbcDecrypt(data, passphrase):
+    """
+    aes-cbc解密，PYSunday内部文件使用的解密
+
+    **Usage:**
+
+    ```
+    >>> from sunday.core.aesCbc import aesCbcDecrypt
+    >>> print(aesCbcDecrypt(b'U2FsdGVkX18eeWRf74A9dp7QlYRKjUTuq4O5U61AcoE=', b'HOWDUUDU'))
+    helloworld
+    ```
+
+    **Parameters:**
+
+    * **data:** `str` -- 明文字符串
+    * **passphrase:** `int` -- 密钥
+    """
     if type(data) == str: data = data.encode()
     if type(passphrase) == str: passphrase = passphrase.encode()
     data = base64.b64decode(data)
