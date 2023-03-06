@@ -11,3 +11,4 @@ plugins/
 pysunday.egg-info/
 dist/
 build/
+site/

@@ -62,8 +62,11 @@ def cryptBySm2(datastrList, key, cryptType='encrypt'):
     if not datastrList: return []
     if type(datastrList) == str:
         datastrList = [datastrList]
+    execPath = os.path.join(sundayCwd, 'utils', 'cryptanalysis', f'{cryptType}_sm2.js')
+    if not os.path.exists(execPath):
+        raise getvar(sdvar_exception)(-1, f'{cryptType}暂不支持，解析文件不存在：{execPath}')
     cmd = 'node {execPath} {key} {cipherMode} {datastr}'.format(
-            execPath=os.path.join(sundayCwd, 'utils', 'cryptanalysis', f'{cryptType}_sm2.js'),
+            execPath=execPath,
             key=key,
             cipherMode='1',
             datastr=' '.join(datastrList))
@@ -86,8 +89,11 @@ def cryptBySm4(datastrList, key, cryptType='encrypt'):
     if not datastrList: return []
     if type(datastrList) == str:
         datastrList = [datastrList]
+    execPath = os.path.join(sundayCwd, 'utils', 'cryptanalysis', f'{cryptType}_sm4.js')
+    if not os.path.exists(execPath):
+        raise getvar(sdvar_exception)(-1, f'{cryptType}暂不支持，解析文件不存在：{execPath}')
     cmd = "node {execPath} {key} {datastr}".format(
-            execPath=os.path.join(sundayCwd, 'utils', 'cryptanalysis', f'{cryptType}_sm4.js'),
+            execPath=execPath,
             key=key,
             datastr=' '.join(datastrList))
     execcode, stdout, stderr = cmdexec(cmd)
@@ -109,8 +115,11 @@ def cryptByJsEncrypt(datastrList, key, cryptType='encrypt', isHex=False):
     if not datastrList: return []
     if type(datastrList) == str:
         datastrList = [datastrList]
+    execPath = os.path.join(sundayCwd, 'utils', 'cryptanalysis', f'{cryptType}_jsencrypt{"_hex" if isHex else ""}.js')
+    if not os.path.exists(execPath):
+        raise getvar(sdvar_exception)(-1, f'{cryptType}暂不支持，解析文件不存在：{execPath}')
     cmd = 'node {execPath} {key} {datastr}'.format(
-            execPath=os.path.join(sundayCwd, 'utils', 'cryptanalysis', f'{cryptType}_jsencrypt{"_hex" if isHex else ""}.js'),
+            execPath=execPath,
             key=key,
             datastr=' '.join(datastrList))
     execcode, stdout, stderr = cmdexec(cmd)
@@ -132,14 +141,43 @@ def cryptByCryptoJS(datastrList, key, cryptType='encrypt', mode='ECB'):
     """
     if not datastrList: return []
     if type(datastrList) == str: datastrList = [datastrList]
+    execPath = os.path.join(sundayCwd, 'utils', 'cryptanalysis', f'{cryptType}_cryptojs_{mode}.js')
+    if not os.path.exists(execPath):
+        raise getvar(sdvar_exception)(-1, f'{cryptType}暂不支持，解析文件不存在：{execPath}')
     cmd = 'node {execPath} {key} {datastr}'.format(
-            execPath=os.path.join(sundayCwd, 'utils', 'cryptanalysis', f'{cryptType}_cryptojs_{mode}.js'),
+            execPath=execPath,
             key=key,
             datastr=' '.join(datastrList))
     execcode, stdout, stderr = cmdexec(cmd)
     if execcode != 0:
         getvar(sdvar_logger).error(stderr)
         raise getvar(sdvar_exception)(-1, f'cryptojs {cryptType} {mode} fail')
+    return stdout.strip().split('\n')
+
+def cryptByUuid(datastrList, key, cryptType='decrypt'):
+    """
+    根据密文与密钥解码出UUID值
+
+    **Parameters:**
+
+    * **datastrList:** `list` -- 明文或者密闻组成的数组，如一次加密多个密码
+    * **key:** `str` -- 密钥
+    * **cryptType:** `str` -- encrypt(加密)、decrypt(解密)
+    """
+    if not datastrList: return []
+    if type(datastrList) == str:
+        datastrList = [datastrList]
+    execPath = os.path.join(sundayCwd, 'utils', 'cryptanalysis', f'{cryptType}_aestoolsnsrd.js')
+    if not os.path.exists(execPath):
+        raise getvar(sdvar_exception)(-1, f'{cryptType}暂不支持，解析文件不存在：{execPath}')
+    cmd = "node {execPath} {key} {datastr}".format(
+            execPath=execPath,
+            key=key,
+            datastr=' '.join(datastrList))
+    execcode, stdout, stderr = cmdexec(cmd)
+    if execcode != 0:
+        getvar(sdvar_logger).error(stderr)
+        raise getvar(sdvar_exception)(-1, f'aesToolsNsrd decrypt UUID {cryptType} fail')
     return stdout.strip().split('\n')
 
 if __name__ == "__main__":
