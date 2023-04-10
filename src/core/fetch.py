@@ -24,8 +24,7 @@ headers = {
         'AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36'),
     'Pragma': 'no-cache',
     'Cache-Control': 'no-cache',
-    'Accept-Encoding': 'gzip, deflate, br',
-    'Accept-Language': 'zh-CN,zh;q=0.9'
+    'Accept-Encoding': 'gzip, deflate',
 }
 
 headers_post = {
