@@ -13,3 +13,4 @@ pycryptodome
 json5
 Pillow
 validators
+PyExecJS

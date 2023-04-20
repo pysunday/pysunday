@@ -4,3 +4,4 @@ from .Email import *
 from .cryptanalyst import *
 from .image import *
 from .md5 import *
+from .cryptanalyst_js import *
