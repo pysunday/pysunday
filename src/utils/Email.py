@@ -44,7 +44,7 @@ class Email(object):
     def new_msg(self, content, users, msg_type='plain', info=None, title=None, docs=[]):
         msg = MIMEMultipart()
         msg.attach(MIMEText(content, msg_type, 'utf-8'))
-        msg['From'] = f'{info or self.info}<{self.user}>'
+        msg['From'] = f'{info or self.info} <{self.user}>'
         msg['To'] = ','.join(users)
         msg['Subject'] = Header(title or self.title, 'utf-8')
         if type(docs) != list: docs = [docs]
