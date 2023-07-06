@@ -1,17 +1,10 @@
-**如有任何问题请及时告知，创作不易感谢支持！**
-
-# pysunday
-
-**pysunday** 是一款基于插件驱动的开发工具包, 旨降低程序员工具开发的复杂度, 目标向集环境、代理、工具等全面的开发框架.
-
-```python
-from sunday.core import cmdexec
-code, stdout, stderr = cmdexec('ls', 10000)
-```
-
 [![Downloads](https://pepy.tech/badge/pysunday/month)](https://pepy.tech/project/pysunday)
 [![Supported Versions](https://img.shields.io/pypi/pyversions/pysunday.svg)](https://pypi.org/project/pysunday)
 [![Contributors](https://img.shields.io/github/contributors/pysunday/pysunday.svg)](https://github.com/pysunday/pysunday/graphs/contributors)
+
+# pysunday
+
+官方文档[PySunday](https://pysunday.howduudu.tech)
 
 ## 安装
 
@@ -32,14 +25,6 @@ export SUNDAY_ROOT=~/.sunday
 export PATH=$SUNDAY_ROOT/bin:$PATH
 ```
 
-## Docker安装(试用)
-
-1. 当前目录运行构建image: `docker build -t sunday ./`
-2. 以守护进程方式运行启动: `docker run -d --restart always --name sunday -p 5000:5000 -v $HOME/.ssh:/root/.ssh sunday /bin/bash -c 'while true; do echo sunday runing; sleep 10;done'`
-3. 执行sunday命令, 如: `docker exec sunday sunday_install https://github.com/pysunday/command-common.git#main`
-4. 使用alias设置便捷命令: `echo "alias sunday='docker exec -it sunday'" >> ~/.bashrc; source ~/.bashrc`
-5. 运行`sd_getip`命令: `docker exec sunday sd_getip`
-
 ## sunday支持及未来支持
 
 [x] 敏捷工具核心库  
@@ -51,25 +36,12 @@ export PATH=$SUNDAY_ROOT/bin:$PATH
 [x] 列表打印  
 [x] 多线程运行  
 [x] 密文加解密支持  
+[X] 前端辅助开发工具  
 [ ] LSP多语言支持  
 [ ] 开发环境配置  
 [ ] UI自动化测试工具  
-[ ] 前端辅助开发工具  
 [ ] 文档同步wiki  
 [ ] 其它功能...
-
-### 正在做的
-
-前端辅助开发工具: 企业级前端项目开发依赖的外部环境太多，往往会影响到前端开发效率，因此该工具希望实现如下功能：
-
-1. 快捷代理，并通过api实现交互，预期使用mitmdump实现
-2. 预设场景，根据场景收集与回放接口请求
-3. 对收集的数据可版本控制
-4. 场景回放支持预设修改
-
-场景化可打通A to B to C最后一公里壁垒，降低项目对开发人员的依赖性
-
-数据代理降低外部环境依赖，如对认证的依赖，hybrid native开发时对壳接口交互的依赖(这个现成mock工具做不到)等
 
 ## 插件开发
 
@@ -168,32 +140,4 @@ Optional:
 
 ## 插件收录
 
-### 官方插件
-
-#### command-common
-
-[command-common](https://github.com/pysunday/command-common): 提供好用的命令行命令, 安装: `sunday_install https://github.com/pysunday/command-common.git#main`
-
-命令名 | 来自插件 | 功能 | 是否需要登录
------- | -------- | ---- | ------------
-`sd_getip` | common | 查看本机ip | 否
-`sd_getport` | common | 查看端口的占用情况 | 否
-`sd_chrome` | common | 命令行启动chrome | 否
-`sd_grepn` | common | 带行号的命令行搜索，过滤模块包目录、打包目录等 | 否
-
-### tools-imrobot
-
-[tools-imrobot](https://github.com/pysunday/tools-imrobot): 聊天机器人插件, 安装: `sunday_install https://github.com/pysunday/tools-imrobot.git#main`
-
-### login-zhipin
-
-[login-zhipin](https://github.com/pysunday/login-zhipin): zhipin网站登录插件, 安装: `sunday_install https://github.com/pysunday/login-zhipin.git#main`
-
-### tools-zhipin
-
-[tools-zhipin](https://github.com/pysunday/tools-zhipin): zhipin网站智能找工作、智能聊天插件, 安装: `sunday_install https://github.com/pysunday/tools-zhipin.git#main`
-
-### 非官方插件
-
-**多个未收录的企业内部插件稳定运行中**
-
+查看官方文档[插件列表](https://pysunday.howduudu.tech/plugins/)

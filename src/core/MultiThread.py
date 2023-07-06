@@ -50,7 +50,9 @@ class MultiThread():
         * **isDelay:** `bool` -- 是否等待执行完成，默认为True，False表示后台运行
         * **isBar:** `bool` -- 是否显示进度条, 默认False
         """
-        for i in self.threads: i.start()
+        for i in self.threads:
+            if not isDelay: i.setDaemon(True)
+            i.start()
         if isDelay:
             isShowBar = isBar and self.data_count > 0
             if isShowBar:

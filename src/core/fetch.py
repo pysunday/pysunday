@@ -167,7 +167,7 @@ class Fetch():
             return True
         return False
 
-    def requestByType(self, type, times, *args, **kwargs):
+    def requestByType(self, type, times=0, *args, **kwargs):
         try:
             stime = time.time()
             params = omit(kwargs, ['timeout_time'])
