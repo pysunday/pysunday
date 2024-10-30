@@ -1,7 +1,7 @@
 # coding: utf-8
 import os
 import sys
-from dotenv import load_dotenv, set_key, unset_key
+from dotenv import load_dotenv, get_key, set_key, unset_key
 from sunday.core.logger import Logger
 
 logger = Logger('enver').getLogger()
@@ -17,7 +17,7 @@ def enver(file):
     load_dotenv(file)
     def getenv(key):
         '''返回env中对应key的值'''
-        return os.environ.get(str(key))
+        return get_key(file, str(key))
     def setenv(key, val = None):
         '''设置env中对应key的值'''
         if not val:
