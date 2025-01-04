@@ -1,5 +1,6 @@
 # coding: utf-8
 import os
+import json
 import requests
 import sunday.core.paths as paths
 import sunday.core.globalvar as globalvar
@@ -115,4 +116,9 @@ class LoginBase():
         if isLogin and self.checkLogin(checkUrl):
             session.cookies, isLogin = self.getCookie(useHistory=False)
         return self.fetch, isLogin
+
+    def login2brower(self):
+        # 登录态同步到浏览器
+        cookies = json.dumps([f'{key}={val}' for key, val in self.fetch.getCookiesDict().items()])
+        return f"javascript:{cookies}.map(t=>document.cookie=t.trim()+';'+'path=/');history.pushState(undefined,undefined,'#cookie写入成功！')"
 

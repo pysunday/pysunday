@@ -3,6 +3,8 @@ import requests
 import time
 import sunday.core.paths as paths
 import validators
+import hashlib
+import json
 from http.cookiejar import LWPCookieJar, CookieJar
 from sunday.core.getEnv import getEnv
 from sunday.core.logger import Logger
@@ -167,7 +169,15 @@ class Fetch():
             return True
         return False
 
+    def generate_cache_key(self, url, params=None):
+        """生成缓存的key"""
+        key = url
+        if params:
+            key += str(sorted(params.items()))
+        return hashlib.md5(key.encode('utf-8')).hexdigest()
+
     def requestByType(self, type, times=0, *args, **kwargs):
+        """cache_hook: 缓存方法"""
         try:
             stime = time.time()
             params = omit(kwargs, ['timeout_time'])
@@ -209,21 +219,34 @@ class Fetch():
         """
         return self.requests_common('post', *args, **kwargs)
 
-    def requests_json_common(self, type, *args, **kwargs):
-        ans = self.requestByType(type, 0, *args, **kwargs)
+    def requests_json_common(self, rtype, *args, **kwargs):
+        cache_hook = kwargs.get('cache_hook')
+        cache_key = self.generate_cache_key(args[0], kwargs.get('params'))
+        if cache_hook:
+            cache_data = cache_hook(cache_key)
+            if cache_data:
+                return {
+                    'data': json.loads(cache_data),
+                    'text': cache_data
+                }
+            del kwargs['cache_hook']
+        ans = self.requestByType(rtype, 0, *args, **kwargs)
+        if cache_hook:
+            cache_hook(cache_key, ans, args[0], kwargs.get('params'))
         try:
             data = ans.json()
+            text = ans.text
             if hasattr(data, 'update'):
-                data.update({ 'text': ans.text })
+                data.update({ 'text': text })
                 return data
             return {
                     'data': data,
-                    'text': ans.text,
+                    'text': text,
                     }
         except Exception as e:
-            logger.error('请求结果json解析失败: %s' % ans.text)
+            logger.error('请求结果json解析失败: %s' % text)
             if self.jsonErrorMessage: raise getvar(sdvar_exception)(self.jsonErrorNumber, self.jsonErrorMessage)
-            return { 'sunday_error': True, 'msg': '返回结果非JSON', 'url': ans.request.url, 'text': ans.text, 'type': type }
+            return { 'sunday_error': True, 'msg': '返回结果非JSON', 'url': ans.request.url, 'text': text, 'type': rtype }
 
     # get请求，返回dict对象
     def get_json(self, *args, **kwargs):
