@@ -225,10 +225,15 @@ class Fetch():
         if cache_hook:
             cache_data = cache_hook(cache_key)
             if cache_data:
+                data = json.loads(cache_data)
+                text = cache_data
+                if hasattr(data, 'update'):
+                    data.update({ 'text': text })
+                    return data
                 return {
-                    'data': json.loads(cache_data),
-                    'text': cache_data
-                }
+                        'data': data,
+                        'text': text,
+                        }
             del kwargs['cache_hook']
         ans = self.requestByType(rtype, 0, *args, **kwargs)
         if cache_hook:
