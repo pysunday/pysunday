@@ -4,4 +4,6 @@
 
 # pysunday
 
-官方文档[PySunday](https://pysunday.howduudu.tech)
+文档地址: https://pysunday.github.io/
+
+插件地址: https://github.com/orgs/pysunday-plugins/repositories

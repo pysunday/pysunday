@@ -44,7 +44,7 @@ nav:
       - 登录插件开发(待补充): guide/login-plugin-example.md
       - 插件-代理插件讲解(待补充): guide/plugin-proxy.md
       - 插件-直聘插件讲解(待补充): guide/plugin-zhipin.md
-    - 插件: plugins.md
+    - 插件: https://github.com/orgs/pysunday-plugins/repositories
 
 extra_css:
     - css/extra.css
