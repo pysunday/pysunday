@@ -2,7 +2,6 @@
 # coding: utf-8
 
 import stat
-import pdb
 from os import path, chmod, listdir, system
 from setuptools import setup
 from setuptools.command.install import install
@@ -48,7 +47,7 @@ class Install(install):
 setup(
     name='pysunday',
     version=version,
-    description='一款目标明确的敏捷开发工具',
+    description='命令行执行优先的敏捷开发工具集，快速开发模块化的、工具优先的python程序',
     long_description_content_type='text/markdown',
     long_description=readme,
     author='ct',

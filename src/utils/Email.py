@@ -8,30 +8,22 @@ from sunday.core.logger import Logger
 logger = Logger('MAIL').getLogger()
 
 class Email(object):
-    """
-    发送邮件，用于程序运行监控时的异常预警
-
-    **Usage:**
-
-    ```
-    >>> from sunday.utils.Email import Email, getEmailFile
-    >>> config = {'host': 'smtp.163.com', 'user': '发送方邮箱地址', 'pwd': '发送方邮箱密码', 'info': '发件人描述', 'tars': '收件人邮箱', 'title': '报错预警邮件'}
-    >>> email = Email(**config)
-    >>> email.send_mail('<center><h3>HTML文本</h3></center>', msg_type='html')
-    >>> email.send_mail('纯文本', msg_type='plain')
-    >>> email.send_mail('带附件邮件', docs=getEmailFile(b'二进制', '附件.excel'))
-    ```
-
-    **Parameters:**
-
-    * **host:** `str` -- smtp服务地址
-    * **user:** `str` -- 邮箱账号
-    * **pwd:** `str` -- 授权码
-    * **tars:** `str` -- 收件人
-    * **title:** `str` -- 邮件标题
-    * **info:** `str` -- 发件人描述
-
-    **Return:** `email`
+    """发送邮件，用于程序运行监控时的异常预警
+    Usages:
+        >>> from sunday.utils.Email import Email, getEmailFile
+        >>> config = {'host': 'smtp.163.com', 'user': '发送方邮箱地址', 'pwd': '发送方邮箱密码', 'info': '发件人描述', 'tars': '收件人邮箱', 'title': '报错预警邮件'}
+        >>> email = Email(**config)
+        >>> email.send_mail(`'<center><h3>HTML文本</h3></center>'`, msg_type='html')
+        >>> email.send_mail('纯文本', msg_type='plain')
+        >>> email.send_mail('带附件邮件', docs=getEmailFile(b'二进制', '附件.excel'))
+    Args:
+        host(str): smtp服务地址
+        user(str): 邮箱账号
+        pwd(str): 授权码
+        tars(str): 收件人
+        title(str): 邮件标题
+        info(str): 发件人描述
+    Returns: email
     """
     def __init__(self, host=None, user=None, pwd=None, tars=None, info='info', title='title', **argvs):
         self.host = host
@@ -58,17 +50,14 @@ class Email(object):
         server.quit()
 
     def send_mail(self, content, users=None, **argvs):
-        """
-        执行发送邮件
-
-        **Parameters:**
-
-        * **content:** `str` -- 邮件内容
-        * **users:** `str` -- 收件人
-        * **msg_type:** `str` -- 邮件内容类型，文本(plain)/网页(html)，默认为plain
-        * **title:** `str` -- 邮件标题
-        * **info:** `str` -- 发件人描述
-        * **docs:** `MIMEApplication` -- 附件
+        """执行发送邮件
+        Args:
+            content(str): 邮件内容
+            users(str): 收件人
+            msg_type(str): 邮件内容类型，文本(plain)/网页(html)，默认为plain
+            title(str): 邮件标题
+            info(str): 发件人描述
+            docs(MIMEApplication): 附件
         """
         logger.debug('执行邮件发送')
         users = users or self.tars
@@ -82,13 +71,10 @@ class Email(object):
             logger.exception(e)
 
 def getEmailFile(stream, filename):
-    """
-    生成文件流对象，用于带附件邮件发送使用
-
-    **Parameters:**
-
-    * **stream:** `binary` -- 二进制流文本
-    * **filename:** `str` -- 文件名
+    """生成文件流对象，用于带附件邮件发送使用
+    Args:
+        stream(binary): 二进制流文本
+        filename(str): 文件名
     """
     file = MIMEApplication(stream)
     file.add_header('Content-Disposition', 'attachment', filename=filename)

@@ -1,4 +1,4 @@
-# API-日志记录
+# logger
 
 超级好用的日志工具
 
@@ -6,7 +6,7 @@
 
 ## API说明
 
-::: sunday.core.logger.Logger
+::: sunday.core.Logger
     :docstring:
     :members: getLogger
 
@@ -20,7 +20,7 @@ PYSunday的日志模块使用很简单，实例化后的日志对象提供6种�
 如下示例使用的显示格式为：`%%(blue)s[%%(asctime)s.%%(msecs)-3d] %%(log_color)s%%(levelname)-7s: %%(purple)s<%%(name)s> %%(log_color)s%%(message)s`
 
 ```python
-from sunday.core.logger import Logger
+from sunday.core import Logger
 
 logger = Logger('功能模块名').getLogger()
 logger.debug('我是debug，输出是白色')
@@ -44,7 +44,7 @@ less /Users/rnet/.sunday/log/2023-02-01T20:39:14.578677
 
 该方法可以修改所有已经存在的Logger实例的日志打印等级，如果是命令工具可以直接通过命令入参的`--loglevel`控制，不建议独立使用
 
-::: sunday.core.logger.setLogLevel
+::: sunday.core.setLogLevel
     :docstring:
 
 [配置]: setting.md

@@ -6,8 +6,19 @@ from sunday.core.logger import Logger
 
 logger = Logger('enver').getLogger()
 
-def enver(file):
-    '''传入env文件, 返回操作env文件的方法'''
+def enver(file: str):
+    '''传入env文件, 返回操作env文件的方法
+    Args:
+        file(str): 文件路径
+    Returns:
+        getenv(key): 获取键对应的值
+        setenv(key, val): 设置键和值
+        getfile(): 返回当前env文件路径
+    Usages:
+        getenv, setenv, = enver('./.env')
+        getenv('key')
+        setenv('key', 'val')
+    '''
     if not os.path.exists(os.path.dirname(file)):
         logger.error('路径目录不存在 %s' % file)
         sys.exit(1)

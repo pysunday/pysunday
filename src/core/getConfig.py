@@ -17,14 +17,15 @@ defaultConfig = {
 def getConfig(name, file='config.ini', default={}):
     """
     返回能够获取全局配置文件(`$SUNDAY_ROOT/config.ini`)内配置值的函数
-
-    **Parameters:**
-
-    * **name:** `str` -- 键名
-    * **file:** `str` -- 文件名
-    * **default:** `dict` -- 默认配置的集合，优先级大于全局的配置
-
-    **Return:** `getval(key)`
+    Args:
+        name(str): 分类名
+        file(str): 文件名
+        default(dict): 默认配置的集合，优先级大于全局的配置
+    Returns:
+        getval(key): 返回键对应的值
+    Usages:
+        >>> getConfig('LOGGING')('level')
+        `DEBUG`
     """
     configPwd = os.path.join(paths.rootCwd, file)
     cfg = ConfigParser()

@@ -25,24 +25,16 @@ logging.basicConfig(filename=logfile, level=logging.DEBUG, force=True,
         format='[%(asctime)s.%(msecs)-3d] %(levelname)s <%(name)s>: %(message)s')
 
 class Logger():
-    """
-    日志管理与控制，日志分类、打印与缓存
-
-    **Usage:**
-
-    ```
-    >>> from sunday.core.logger import Logger
-    >>> logger = Logger('自定义名称').getLogger()
-    >>> logger.debug('日志打印输出')
-    ```
-
-    **Parameters:**
-
-    * **name:** `str` -- 日志分类名称
-    * **level:** `str` -- 日志打印级别，DEBUG、INFO、WARNING、ERROR、CRITICAL
-    * **format:** `str` -- 日志打印格式
-
-    **Return:** `logger`
+    """日志管理与控制，日志分类、打印与缓存
+    Usages:
+        >>> from sunday.core.logger import Logger
+        >>> logger = Logger('自定义名称').getLogger()
+        >>> logger.debug('日志打印输出')
+    Args:
+        name(str): 日志分类名称
+        level(str): 日志打印级别，DEBUG、INFO、WARNING、ERROR、CRITICAL
+        format(str): 日志打印格式
+    Returns: logger
     """
     def __init__(self, name, level='', format=''):
         cfg = getConfig('LOGGING')
@@ -60,14 +52,10 @@ class Logger():
         return self.logger
 
 def setLogLevel(level):
+    """修改所有已经存在的日志实例等级
+    Args:
+        level(str): 日志打印级别，DEBUG、INFO、WARNING、ERROR、CRITICAL
     """
-    修改所有已经存在的日志实例等级
-
-    **Parameters:**
-
-    * **level:** `str` -- 日志打印级别，DEBUG、INFO、WARNING、ERROR、CRITICAL
-    """
-    # 设置所有日志管理者的日志等级
     setvar(sdvar_loglevel, level)
     levelstr = level.upper()
     level = getattr(logging, levelstr)

@@ -6,11 +6,11 @@
 
 ## API说明
 
-::: sunday.utils.Email.Email
+::: sunday.utils.Email
     :docstring:
     :members: send_mail
 
-::: sunday.utils.Email.getEmailFile
+::: sunday.utils.getEmailFile
     :docstring:
 
 ## 邮箱配置

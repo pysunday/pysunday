@@ -1,4 +1,4 @@
-# API-接口请求
+# Fetch
 
 封装requests，会话控制与接口交互管理
 
@@ -8,7 +8,7 @@
 
 写python大家都会用requests发起请求，但是对于复杂的情况，直接用requests就会显得很复杂，比如：内网环境使用系统pac代理、保持会话、请求失败再次尝试、请求代理等，这些都是数据采集开发中常常遇到的问题，使用PYSunday的Fetch API来开发网页接口数据请求可以不用考虑这些问题
 
-::: sunday.core.fetch.Fetch
+::: sunday.core.Fetch
     :docstring:
     :members: add_header get post get_json post_json getCookiesDict setCookie setJsonError
 

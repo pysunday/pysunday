@@ -12,20 +12,16 @@ universal_newlines=False, startupinfo=None, creationflags=0
 出参: stdin, stdout, stderr, pid, returncode
 """
 
-def cmdexec(cmd, timeout = 10, **kwargs):
+def cmdexec(cmd: str, timeout: int = 10, **kwargs):
     """
     执行系统命令, 返回: code, stdout, stderr, 当code不为0则为报错
-
-    **Parameters:**
-
-    * **cmd:** `str` -- 命令文本
-    * **timeout:** `int` -- 超时时间
-
-    **Return:**
-
-    * **code:** `int` 为0则执行成功，否则执行失败
-    * **success:** `str` 执行成功打印内容
-    * **error:** `str` 执行失败打印内容
+    Args:
+        cmd(str): 命令文本
+        timeout(int): 超时时间
+    Returns:
+        code(int): 为0则执行成功，否则执行失败
+        success(str): 执行成功打印内容
+        error(str): 执行失败打印内容
     """
     logger.warning('执行命令: %s' % cmd)
     subp = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, **kwargs)

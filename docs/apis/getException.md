@@ -1,9 +1,8 @@
-# API-报错捕获
+# getException
 
-程序报错捕获与管理
+报错内容管理
 
 ---
-
 ## API说明
 
 ::: sunday.core.getException.getException

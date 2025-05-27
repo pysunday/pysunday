@@ -5,15 +5,11 @@ from sunday.core.paths import sundayCwd
 from sunday.core.cmdexec import cmdexec
 
 def grenKey(num1=None, num2=None):
-    """
-    生成指定位数标识码, 如grenKey(16, 61)则生成16位字符码来源前61的随机字符串
-
+    """生成指定位数标识码, 如grenKey(16, 61)则生成16位字符码来源前61的随机字符串
     标识码字符来源：0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz
-
-    **Parameters:**
-
-    * **num1:** `int` -- 标识码位数
-    * **num2:** `int` -- 标识码标识范围
+    Args:
+        num1(int): 标识码位数
+        num2(int): 标识码标识范围
     """
     import random
     words = list("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz")
@@ -32,32 +28,23 @@ def grenKey(num1=None, num2=None):
     return ''.join(ans)
 
 def str2base16(oristr):
-    """
-    字符串转化为十六进制数字串
-
-    **Usage:**
-    ```
-    >>> from sunday.utils.cryptanalyst import str2base16
-    >>> print(str2base16('helloworld'))
-    68656c6c6f776f726c64
-    ```
-
-    **Parameters:**
-
-    * **oristr:** `str` -- 字符串
+    """字符串转化为十六进制数字串
+    Usages:
+        >>> from sunday.utils.cryptanalyst import str2base16
+        >>> print(str2base16('helloworld'))
+        `68656c6c6f776f726c64`
+    Args:
+        oristr(str): 字符串
     """
     # 字符串转16进制
     return ''.join([hex(ord(s)).replace('0x', '') for s in list(oristr)])
 
 def cryptBySm2(datastrList, key, cryptType='encrypt'):
-    """
-    国密SM2加解密(非对称加密)
-
-    **Parameters:**
-
-    * **datastrList:** `list` -- 明文或者密闻组成的数组，如一次加密多个密码
-    * **key:** `str` -- 加密传公钥, 解密传私钥
-    * **cryptType:** `str` -- encrypt(加密)、decrypt(解密)
+    """国密SM2加解密(非对称加密)
+    Args:
+        datastrList(list): 明文或者密闻组成的数组，如一次加密多个密码
+        key(str): 加密传公钥, 解密传私钥
+        cryptType(str): encrypt(加密)、decrypt(解密)
     """
     if not datastrList: return []
     if type(datastrList) == str:
@@ -77,14 +64,11 @@ def cryptBySm2(datastrList, key, cryptType='encrypt'):
     return stdout.strip().split('\n')
 
 def cryptBySm4(datastrList, key, cryptType='encrypt'):
-    """
-    国密SM4加解密(对称加密)
-
-    **Parameters:**
-
-    * **datastrList:** `list` -- 明文或者密闻组成的数组，如一次加密多个密码
-    * **key:** `str` -- 公钥
-    * **cryptType:** `str` -- encrypt(加密)、decrypt(解密)
+    """国密SM4加解密(对称加密)
+    Args:
+        datastrList(list): 明文或者密闻组成的数组，如一次加密多个密码
+        key(str): 公钥
+        cryptType(str): encrypt(加密)、decrypt(解密)
     """
     if not datastrList: return []
     if type(datastrList) == str:
@@ -103,14 +87,11 @@ def cryptBySm4(datastrList, key, cryptType='encrypt'):
     return stdout.strip().split('\n')
 
 def cryptByJsEncrypt(datastrList, key, cryptType='encrypt', isHex=False):
-    """
-    jsencrypt加解密
-
-    **Parameters:**
-
-    * **datastrList:** `list` -- 明文或者密闻组成的数组，如一次加密多个密码
-    * **key:** `str` -- 公钥
-    * **cryptType:** `str` -- encrypt(加密)、decrypt(解密)
+    """jsencrypt加解密
+    Args:
+        datastrList(list): 明文或者密闻组成的数组，如一次加密多个密码
+        key(str): 公钥
+        cryptType(str): encrypt(加密)、decrypt(解密)
     """
     if not datastrList: return []
     if type(datastrList) == str:
@@ -129,15 +110,12 @@ def cryptByJsEncrypt(datastrList, key, cryptType='encrypt', isHex=False):
     return stdout.strip().split('\n')
 
 def cryptByCryptoJS(datastrList, key, cryptType='encrypt', mode='ECB'):
-    """
-    cryptoJS加解密
-
-    **Parameters:**
-
-    * **datastrList:** `list` -- 明文或者密闻组成的数组，如一次加密多个密码
-    * **key:** `str` -- 公钥
-    * **cryptType:** `str` -- encrypt(加密)、decrypt(解密)
-    * **mode:** `str` -- 加密方式，默认ECB
+    """cryptoJS加解密
+    Args:
+        datastrList(list): 明文或者密闻组成的数组，如一次加密多个密码
+        key(str): 公钥
+        cryptType(str): encrypt(加密)、decrypt(解密)
+        mode(str): 加密方式，默认ECB
     """
     if not datastrList: return []
     if type(datastrList) == str: datastrList = [datastrList]
@@ -155,14 +133,11 @@ def cryptByCryptoJS(datastrList, key, cryptType='encrypt', mode='ECB'):
     return stdout.strip().split('\n')
 
 def cryptByUuid(datastrList, key, cryptType='decrypt'):
-    """
-    根据密文与密钥解码出UUID值
-
-    **Parameters:**
-
-    * **datastrList:** `list` -- 明文或者密闻组成的数组，如一次加密多个密码
-    * **key:** `str` -- 密钥
-    * **cryptType:** `str` -- encrypt(加密)、decrypt(解密)
+    """根据密文与密钥解码出UUID值
+    Args:
+        datastrList(list): 明文或者密闻组成的数组，如一次加密多个密码
+        key(str): 密钥
+        cryptType(str): encrypt(加密)、decrypt(解密)
     """
     if not datastrList: return []
     if type(datastrList) == str:

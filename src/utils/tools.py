@@ -1,6 +1,4 @@
 # coding: utf-8
-import os
-import types
 from datetime import datetime
 
 def mergeObj(ori={}, *objs):
@@ -29,12 +27,9 @@ def get_width(ans):
     return width, times
 
 def parseJsonp(text, defvalue={}):
-    """
-    解析jsonp数据返回dict数据
-
-    **Parameters:**
-
-    * **text:** `str` -- jsonp数据字符串, 格式如：`jsonp_12345({})`
+    """解析jsonp数据返回dict数据
+    Args:
+        text(str): jsonp数据字符串, 格式如：`jsonp_12345({})`
     """
     import json5
     try:

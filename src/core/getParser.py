@@ -10,10 +10,14 @@ def formatter(prog):
     return argparse.RawDescriptionHelpFormatter(prog, indent_increment=2, max_help_position=100, width=140)
 
 def getParserDefault(config, name='DEFAULT'):
-    '''
-    用于返回命令入参的默认值对象
-        config<dict>: 为命令入参
-        name<str>: 默认为DEAFULT, 如果返回指定子命令的默认值, 可替代为子命令名称
+    '''用于返回命令入参的默认值对象
+    Args:
+        config(dict): 为命令入参
+        name(str): 默认为DEAFULT, 如果返回指定子命令的默认值, 可替代为子命令名称
+    Usages:
+        class MyClass:
+            def __init__(self, CMDINFO):
+                self.__dict__.update(getParserDefault(CMDINFO))
     '''
     arr = get(config, '.'.join(['params', name])) or []
     obj = {}
@@ -22,14 +26,44 @@ def getParserDefault(config, name='DEFAULT'):
     return obj
 
 def getParser(**argvs):
-    '''
-    传入对象, 除以下参数, 其它参数用于实例化parser使用;
-        1. version<str>: 程序版本
-        2. params<dict>: 命令入参
-            params.DEFAULT<list>: 默认命令入参
-            params.SUBCONFIG<dict>: 子命令配置
-            params[name]<list>: 名称为name的子命令的命令入参
-        实例化用如: description、epilog等, 具体可参考argparse模块
+    '''传入对象, 除以下参数, 其它参数用于实例化parser使用;
+    Args:
+        version(str): 程序版本
+        params(dict): 命令入参
+            params.DEFAULT(list): 默认命令入参
+            params.SUBCONFIG(dict): 子命令配置
+            params.name(list): 名称为name的子命令的命令入参
+        description(str): 描述
+        epilog(str): 说明
+    Returns: parser, [subparsersObj]
+        存在子命令则返回subparsersObj
+    Usages:
+        CMDINFO = {
+            "version": '0.0.1',
+            "description": "根据公司名称搜索",
+            "epilog": "",
+            'params': {
+                'DEFAULT': [
+                    {
+                        'name': ['-m', '--mobile'],
+                        'help': '手机号',
+                        'dest': 'mobile',
+                    },
+                    {
+                        'name': ['-p', '--pass'],
+                        'help': '密码',
+                        'dest': 'password',
+                    },
+                    {
+                        'name': ['-t', '--text'],
+                        'help': '搜索文本',
+                        'dest': 'search_text',
+                    },
+                ],
+            }
+        }
+        parser = getParser(**CMDINFO)
+        handle = parser.parse_args(namespace=MySearch())
     '''
     parserObj, commandObj = omit(argvs, arr), pick(argvs, arr)
     parser = argparse.ArgumentParser(

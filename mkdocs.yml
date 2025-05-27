@@ -9,7 +9,8 @@ edit_uri: blob/master/docs/
 copyright: Copyright &copy; 2021 <a href="https://github.com/pysunday/pysunday">PYSunday</a>, 负责人 <a href="https://howduudu.tech">Rnet Ao</a>.
 
 theme:
-    name: mkdocs
+    # name: mkdocs
+    name: material
     shortcuts:
         help: 191    # ?
         next: 78     # n
@@ -21,33 +22,48 @@ theme:
     hljs_languages:
         - yaml
     navigation_depth: 4
+    palette:
+        scheme: default  # 可选：default（浅色）或 slate（深色）
+        toggle:
+            icon: material/weather-night
+            name: 切换模式
 
 nav:
     - 首页: index.md
     - 开始使用: getting-started.md
+    - APIS:
+      - 目录: apis/README.md
+      - core:
+        - Auth 账密认证: apis/Auth.md
+        - Logger 日志: apis/Logger.md
+        - Fetch 请求: apis/Fetch.md
+        - MultiThread 多线程: apis/MultiThread.md
+        - cache_name 类结果缓存: apis/cache_name.md
+        - cmdexec 执行命令: apis/cmdexec.md
+        - enver 配置文件: apis/enver.md
+        - getConfig 全局配置: apis/getConfig.md
+        - getException 报错捕获: apis/getException.md
+        - getParser 配置命令入参: apis/getParser.md
+        - globalvar 常量: apis/globalvar.md
+        - printTable 数据表格展示: apis/printTable.md
+      - utils:
+        - Email 邮件: apis/Email.md
+        - LoginBase 登录: apis/LoginBase.md
+        - 加密解密: apis/cryptanalyst.md
+        - 图片方法: apis/image.md
+      - 其它: apis/common.md
     - 教程:
       - 教程: guide/README.md
       - 安装: guide/install.md
       - 配置: guide/setting.md
       - 常量与路径: guide/const-path.md
-      - API-接口请求: guide/api-fetch.md
-      - API-命令入参(待补充): guide/api-cmdparams.md
-      - API-多线程: guide/api-multi-thread.md
-      - API-报错捕获: guide/api-exception.md
-      - API-日志记录: guide/api-logging.md
-      - API-登录管理: guide/api-login.md
-      - API-邮件通知: guide/api-mail.md
-      - API-加密解密: guide/api-encrypt.md
-      - API-列表打印: guide/api-tableprint.md
-      - API-其它: guide/api-list.md
-      - 工具插件开发(待补充): guide/tools-plugin-example.md
-      - 登录插件开发(待补充): guide/login-plugin-example.md
-      - 插件-代理插件讲解(待补充): guide/plugin-proxy.md
-      - 插件-直聘插件讲解(待补充): guide/plugin-zhipin.md
+      - 登录插件开发: guide/login-plugin.md
+      - 工具插件开发: guide/tools-plugin.md
     - 插件: https://github.com/orgs/pysunday-plugins/repositories
 
 extra_css:
-    - css/extra.css
+    # - css/extra.css
+    - css/material.css
     - css/autodoc.css
 
 extra:
@@ -71,3 +87,14 @@ markdown_extensions:
     - admonition
     - codehilite
     - mkautodoc
+
+plugins:
+    - search
+    - git-revision-date-localized:
+        type: iso_datetime
+    - termynal:
+        title: bash
+        buttons: macos
+        prompt_literal_start:
+            - "$"
+            - ">"

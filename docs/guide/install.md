@@ -19,6 +19,13 @@ pip 22.2.2 from /opt/homebrew/lib/python3.10/site-packages/pip (python 3.10)
 
 ## 安装PYSunday
 
+<!-- termynal -->
+```
+$ pip3 install pysunday
+---> 100%
+安装完成
+```
+
 ### pypi方式安装
 
 使用pip安装`PYSunday`包, 如果您系统环境配置混乱，可在pip3前面加`python3 -m`执行安装

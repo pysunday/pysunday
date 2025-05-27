@@ -17,10 +17,10 @@ cryptoKey = getConfig('CRYPTO')('key')
 
 class Auth():
     """ 用于用户账户认证相关操作
-    attributes:
+    Args:
         addParams: 用户名密码等交互元素录入
         getParams: 返回交互结果对象
-    examples:
+    Usages:
         from utils.auth import Auth
         auth = Auth('path/to/.env')
         auth.addParams('USER')
@@ -28,7 +28,7 @@ class Auth():
         auth.addParams('USER', 'ask text', 'myName')
         auth.addParams('code', isSave=False)
         params = auth.getParams()
-    raises:
+    Raises:
         请输入env文件路径: 实例化时envPath必传
     """
     def __init__(self, envPath = '', name = ''):
@@ -89,6 +89,7 @@ class Auth():
         return value
 
     def getParams(self):
+        """ 返回收集到的对象属性"""
         return self.val
 
 
