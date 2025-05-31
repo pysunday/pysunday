@@ -1,0 +1,114 @@
+#!/usr/bin/env python3
+# coding: utf-8
+import json
+from sunday.core import cmdexec, Logger, getParser, exit
+from pathlib import Path
+
+CMDINFO = {
+    "version": "0.1.0",
+    "description": u"生成插件readme文件，插件路径不传时默认当前目录",
+    "epilog": u"""
+使用案例:
+    %(prog)s /path/to/project
+    """,
+    "params": {
+        'DEFAULT': [
+            {
+                'name': ['pluginPath'],
+                'help': '项目目录',
+                'default': './',
+                'nargs': '?'
+            },
+        ],
+    }
+}
+
+readme_template = """**该文档为sunday_mkreadme程序自动生成。**
+
+**该插件代码仅用于个人学习、研究或欣赏。插件代码代码作者不保证内容的正确性。通过使用该插件及相关代码产生的风险与代码作者无关。**
+
+**该插件基于[PySunday](https://github.com/pysunday/pysunday/)开发，官网地址：https://pysunday.github.io/**
+
+# 安装
+
+安装插件：`sunday_install pysunday-plugins/{pluginName}`
+
+# 插件描述
+
+{description}
+"""
+
+help_template = """## {idx}. {command}
+
+```bash
+> {command} -h
+
+{help}```
+"""
+
+logger = Logger('MKREADME').getLogger()
+
+class SundayMkreadme:
+    def __init__(self):
+        pass
+
+    def getPkg(self, targetPath):
+        pkg = targetPath / 'package.json'
+        if not pkg.exists():
+            exit('项目的package文件不存在！')
+        with open(pkg, 'r') as f:
+            cfg = json.load(f)
+        if 'type' not in cfg or cfg['type'] not in ['tools', 'login', 'common']:
+            exit('该项目非PySunday项目！')
+        cfg['_paths'] = {
+            'readme': targetPath / 'README.md'
+        }
+        return cfg
+
+    def getDepend(self, cfg):
+        if 'depend' not in cfg or not cfg['depend']: return ''
+        depends = cfg['depend'] if type(cfg['depend']) == list else [cfg['depend']]
+        arr = ['# 依赖的PySunday插件：\n']
+        for idx, depend in enumerate(depends):
+            arr.append(f'{idx + 1}. [{depend}](https://github.com/{depend})')
+        return '\n'.join(arr)
+
+    def getCommand(self, cfg):
+        if 'bin' not in cfg or not cfg['bin']: return ''
+        bins = cfg['bin'] if type(cfg['bin']) == list else [cfg['bin']]
+        arr = ['# 命令用法\n']
+        for idx, bin in enumerate(bins):
+            execcode, stdout, stderr = cmdexec(f'{bin} -h')
+            if stdout: arr.append(help_template.format(idx=idx + 1, command=bin, help=stdout))
+        return '\n'.join(arr)
+
+    def toolsMkreadme(self, cfg):
+        arr = [
+            readme_template.format(
+                pluginName=f'{cfg["type"]}-{cfg["name"]}',
+                description=cfg.get("description", '无')
+            ),
+            self.getCommand(cfg),
+            self.getDepend(cfg)
+        ]
+        readme = '\n'.join(arr)
+        readmePath = cfg['_paths']['readme']
+        with open(readmePath, 'w', encoding='utf-8') as f:
+            f.write(readme)
+        logger.info(f"自动生成readme文档: {readmePath}")
+
+    def run(self):
+        targetPath = (Path.cwd() / self.pluginPath).resolve()
+        cfg = self.getPkg(Path(targetPath))
+        if cfg['type'] == 'tools':
+            self.toolsMkreadme(cfg)
+        elif cfg['type'] == 'login':
+            logger.warning('登录插件文档生成待完成。。。')
+
+def runcmd():
+    parser = getParser(**CMDINFO)
+    handle = parser.parse_args(namespace=SundayMkreadme())
+    handle.run()
+
+if __name__ == "__main__":
+    runcmd()

@@ -1,4 +1,4 @@
-# PYSunday 配置
+# PySunday 配置
 
 全局配置控制插件行为
 
@@ -13,7 +13,7 @@ $ echo $SUNDAY_ROOT
 /Users/rnet/.sunday
 ```
 
-初始情况下运行目录中只有bin目录，用于存放PYSunday自带的可执行命令
+初始情况下运行目录中只有bin目录，用于存放PySunday自带的可执行命令
 
 安装插件并执行相关命令后一般会出现如下目录及文件：
 
@@ -28,11 +28,11 @@ WARNING: **注意:**
 
 ### bin目录
 
-bin目录放置的都是基于PYSunday的可执行文件，如自带的`sunday_install`命令、命令插件`package.json`中`bin`字段指定的可执行文件在插件安装成功后也会在这个目录里出现，该目录下的文件都可以在命令行中任何目录下执行.
+bin目录放置的都是基于PySunday的可执行文件，如自带的`sunday_install`命令、命令插件`package.json`中`bin`字段指定的可执行文件在插件安装成功后也会在这个目录里出现，该目录下的文件都可以在命令行中任何目录下执行.
 
 ### plugins目录
 
-顾名思义，该目录存放安装的pysunday插件，其中`branch@user+name`为从git仓库拉取的插件，如：
+顾名思义，该目录存放安装的PySunday插件，其中`branch@user+name`为从git仓库拉取的插件，如：
 
 ```markdown
 $ ls
@@ -52,12 +52,12 @@ tools-baoshui
 log目录存放程序日志文件。
 
 NOTE: **提示**
-基于PYSunday的插件执行结束后会在尾部打印程序执行时间及日志存储目录，如：  
+基于PySunday的插件执行结束后会在尾部打印程序执行时间及日志存储目录，如：  
 [11:40:43.86 ] INFO   : <SUNDAY> program execution time 1117810.41 s  
 [11:40:43.106] INFO   : <SUNDAY> LOG FILE AT: /Users/rnet/.sunday/log/2023-01-18T13:10:32.646701
 
 WARNING: **注意**
-该目录的文件都是程序执行的日志文件，在程序执行后可用于运行分析，PYSunday不会主动删除日志文件，因此有可能需要使用者手动清理无用日志文件
+该目录的文件都是程序执行的日志文件，在程序执行后可用于运行分析，PySunday不会主动删除日志文件，因此有可能需要使用者手动清理无用日志文件
 
 ### cache目录
 
@@ -65,13 +65,13 @@ cache目录存放的是程序中需要缓存的文件，如登录插件缓存的
 
 ### module-lock.json文件
 
-该文件为PYSunday安装插件后自动生成，用于记录插件的关键数据。
+该文件为PySunday安装插件后自动生成，用于记录插件的关键数据。
 
-## PYSunday全局配置文件config.ini
+## PySunday全局配置文件config.ini
 
-该文件非必须，用户可以通过该文件个性化配置PYSunday的部分行为。
+该文件非必须，用户可以通过该文件个性化配置PySunday的部分行为。
 
-PYSunday运行会读取`$SUNDAY_ROOT/config.ini`文件内的配置项，可以控制日志、登录、加密解密、代理等行为，如作者样例：
+PySunday运行会读取`$SUNDAY_ROOT/config.ini`文件内的配置项，可以控制日志、登录、加密解密、代理等行为，如作者样例：
 
 ```text
 [LOGGING]

@@ -1,0 +1,98 @@
+#!/usr/bin/env python3
+# coding: utf-8
+import os, re
+from sunday.core import cmdexec, Logger, getParser, exit
+from InquirerPy import prompt
+
+CMDINFO = {
+    "version": "0.1.0",
+    "description": u"创建PySunday项目",
+    "epilog": u"""
+使用案例:
+    %(prog)s
+    %(prog)s -t tools -n myproject
+    """,
+    "params": {
+        'DEFAULT': [
+            {
+                'name': ['-t', '--type'],
+                'help': '项目类型，登录: l/login，工具: t/tools',
+                'dest': 'ptype',
+            },
+            {
+                'name': ['-n', '--name'],
+                'help': '项目名称',
+                'dest': 'pname',
+            },
+        ],
+    }
+}
+
+logger = Logger('CREATE').getLogger()
+
+class SundayCreate:
+    def __init__(self):
+        self.template_url = {
+            'login': 'https://github.com/pysunday-plugins/login-template.git',
+            'tools': 'https://github.com/pysunday-plugins/tools-template.git'
+        }
+
+    def create(self):
+        targetPath = os.path.join(os.getcwd(), self.pname)
+        gitPath = os.path.join(targetPath, '.git')
+        command = 'git clone -b master %s %s' % (self.template_url[self.ptype], targetPath)
+        execcode, stdout, stderr = cmdexec(command)
+        if os.path.exists(gitPath) and execcode == 0:
+            logger.info('项目创建成功! 进入项目：cd %s' % targetPath)
+            cmdexec(f'rm -rf {gitPath}')
+        else:
+            logger.error('项目创建失败!\n%s' % stderr)
+
+    def checkType(self):
+        if self.ptype == 't': self.ptype = 'tools'
+        if self.ptype == 'l': self.ptype = 'login'
+        if self.ptype not in ['tools', 'login']:
+            exit('❌ 输入的项目类型不正确，请使用-h查看可行值')
+
+    def checkName(self):
+        if not self.pname or not re.fullmatch(r'[A-Za-z0-9]+', self.pname):
+            exit("❌ 项目名只能输入英文字母和数字")
+
+    def run(self):
+        asklist = []
+        if not self.ptype:
+            asklist.append({
+                'type': 'list',
+                'name': 'ptype',
+                'message': '选择项目类型: ',
+                'choices': [{
+                    'name': '登录插件(login)',
+                    'value': 'login'
+                }, {
+                    'name': '工具插件(tools)',
+                    'value': 'tools'
+                }],
+            })
+        else:
+            self.checkType()
+        if not self.pname:
+            asklist.append({
+                'type': 'input',
+                'name': 'pname',
+                'message': '输入项目名称: '
+            })
+        result = prompt(asklist)
+        if result.get('ptype'): self.ptype = result['ptype']
+        if result.get('pname'): self.pname = result['pname']
+        self.checkType()
+        self.checkName()
+        self.create()
+
+
+def runcmd():
+    parser = getParser(**CMDINFO)
+    handle = parser.parse_args(namespace=SundayCreate())
+    handle.run()
+
+if __name__ == "__main__":
+    runcmd()

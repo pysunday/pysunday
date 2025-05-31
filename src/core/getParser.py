@@ -40,24 +40,20 @@ def getParser(**argvs):
     Usages:
         CMDINFO = {
             "version": '0.0.1',
-            "description": "根据公司名称搜索",
-            "epilog": "",
+            "description": "命令描述",
+            "epilog": "使用样例：%(prog)s name -m 176****0163",
             'params': {
                 'DEFAULT': [
+                    {
+                        'name': 'name',
+                        'help': '不需要-前缀的入参',
+                        'default': './',
+                        'nargs': '?'
+                    },
                     {
                         'name': ['-m', '--mobile'],
                         'help': '手机号',
                         'dest': 'mobile',
-                    },
-                    {
-                        'name': ['-p', '--pass'],
-                        'help': '密码',
-                        'dest': 'password',
-                    },
-                    {
-                        'name': ['-t', '--text'],
-                        'help': '搜索文本',
-                        'dest': 'search_text',
                     },
                 ],
             }
@@ -92,9 +88,10 @@ def getParser(**argvs):
                 continue
             for cfg in cfgs:
                 tar = omit(cfg, ['name'])
+                name = cfg['name'] if type(cfg['name']) == list else [cfg['name']]
                 if 'metavar' not in cfg and 'dest' in cfg and get(tar, 'action') not in ['store_false', 'store_true']:
                     tar['metavar'] = pascal_to_snake(cfg['dest']).upper()
-                tarparser.add_argument(*cfg['name'], **tar)
+                tarparser.add_argument(*name, **tar)
     # 兼容老用法
     parser.add_argument('-v', '--version', action='version', version=commandObj['version'] or '0.0.0', help='当前程序版本')
     parser.add_argument('-h', '--help', action='help', default=argparse.SUPPRESS, help='打印帮助说明')

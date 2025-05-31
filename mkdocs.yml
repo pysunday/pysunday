@@ -16,6 +16,9 @@ theme:
         next: 78     # n
         previous: 80 # p
         search: 83   # s
+    features:
+        # - navigation.tabs
+        - navigation.expand
     nav_style: dark
     locale: zh_CN
     highlightjs: true
@@ -31,6 +34,16 @@ theme:
 nav:
     - 首页: index.md
     - 开始使用: getting-started.md
+    - 教程:
+      - 教程: guide/README.md
+      - 安装: guide/install.md
+      - 配置: guide/setting.md
+      - 常量与路径: guide/const-path.md
+      - 登录插件开发: guide/login-plugin.md
+      - 工具插件开发: guide/tools-plugin.md
+      - 创建插件: guide/sunday_create.md
+      - 安装插件: guide/sunday_install.md
+      - 自动生成文档: guide/sunday_mkreadme.md
     - APIS:
       - 目录: apis/README.md
       - core:
@@ -52,13 +65,6 @@ nav:
         - 加密解密: apis/cryptanalyst.md
         - 图片方法: apis/image.md
       - 其它: apis/common.md
-    - 教程:
-      - 教程: guide/README.md
-      - 安装: guide/install.md
-      - 配置: guide/setting.md
-      - 常量与路径: guide/const-path.md
-      - 登录插件开发: guide/login-plugin.md
-      - 工具插件开发: guide/tools-plugin.md
     - 插件: https://github.com/orgs/pysunday-plugins/repositories
 
 extra_css:

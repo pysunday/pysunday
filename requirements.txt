@@ -14,6 +14,7 @@ json5
 Pillow
 validators
 PyExecJS
+InquirerPy
 
 # mkdocs
 mkdocs-callouts

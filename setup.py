@@ -73,7 +73,11 @@ setup(
         'Topic :: Internet :: WWW/HTTP',
         'Topic :: Software Development :: Libraries',
     ],
-    scripts=['bin/sunday_install'],
+    scripts=[
+        'bin/sunday_install',
+        'bin/sunday_create',
+        'bin/sunday_mkreadme',
+    ],
     dependency_links=[
         'https://pypi.org/simple/'
     ],

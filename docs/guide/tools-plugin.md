@@ -56,7 +56,7 @@ description | 插件描述 | str | -
 bin | 命令行可执行命令 | list | -
 depend | 依赖的插件 | list | -
 keywords | 关键词 | list |  -
-author | | 作者 | str | -
+author | 作者 | str | -
 
 其中type区分是登录插件还是工具插件，配合name的值，最终会生成名为tools-name的文件夹
 
