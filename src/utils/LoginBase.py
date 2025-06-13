@@ -86,7 +86,6 @@ class LoginBase():
         """
         if checkUrl is None:
             raise getvar(sdvar_exception)(-1, '检查登录状态的链接不能为空')
-        self.fetch.get(checkUrl)
         res = self.fetch.get(checkUrl)
         return res.status_code != 200 or res.url != checkUrl
 
